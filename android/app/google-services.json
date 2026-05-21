@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "1099427515724",
+    "project_id": "healthfit-app-9aa66",
+    "storage_bucket": "healthfit-app-9aa66.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1099427515724:android:a6b5d1407a942c3642d3e9",
+        "android_client_info": {
+          "package_name": "com.siratalmustaqeem.healthfitlife"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1099427515724-8nlcijleuodra8urind8druq28k8rqbc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.siratalmustaqeem.healthfitlife",
+            "certificate_hash": "ec40816eadfe9b3fc2ce4beba16d3276f118c88c"
+          }
+        },
+        {
+          "client_id": "1099427515724-b1mj1hiv1g1ubipknvn4rqmhohcgl614.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCaieDqtce1WtAHmDjg75pmTA_5BW7CsiM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1099427515724-b1mj1hiv1g1ubipknvn4rqmhohcgl614.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1099427515724-cal3k4sp7vdltgeref5cpi0ath6lkuu1.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.siratalmustaqeem.healthfitlife"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
