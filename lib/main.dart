@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'app.dart';
@@ -13,8 +14,14 @@ void _onReceiveStepData(Object data) async {
   if (data is! Map) return;
   final map = Map<String, dynamic>.from(data as Map);
   final steps = (map['healthSteps'] ?? map['steps']) as int?;
-  if (steps != null && steps > 0) {
-    await StepRepository().saveTodaySteps(steps);
+  if (steps == null || steps <= 0) return;
+  try {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      await StepRepository().saveTodaySteps(steps);
+    }
+  } catch (e) {
+    debugPrint('Step save error: $e');
   }
 }
 
@@ -32,6 +39,11 @@ void main() async{
   await NotificationService.initialize();
   await StepForegroundService.initialize();
   FlutterForegroundTask.addTaskDataCallback(_onReceiveStepData);
+
+  final user = FirebaseAuth.instance.currentUser;
+  if (user != null) {
+    await StepForegroundService.start();
+  }
 
   runApp(
     const ProviderScope(

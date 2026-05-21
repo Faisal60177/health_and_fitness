@@ -14,13 +14,26 @@ class _StepTaskHandler extends TaskHandler {
 
   @override
   Future<void> onStart(DateTime timestamp, TaskStarter starter) async {
-    _stepSub = Pedometer.stepCountStream.listen((event) {
-      FlutterForegroundTask.sendDataToMain({'steps': event.steps});
-    });
+    // DO NOT request authorization here — needs UI context
+    // Authorization must be done in the app UI before starting service
+
+    // Start pedometer for live steps
+    _stepSub = Pedometer.stepCountStream.listen(
+          (event) {
+        FlutterForegroundTask.sendDataToMain({'steps': event.steps});
+      },
+      onError: (e) {
+        // Pedometer not available — Health Connect will handle it
+      },
+    );
+
+    // Sync Health Connect immediately on start
+    await _syncHealthSteps();
   }
 
   @override
   void onRepeatEvent(DateTime timestamp) {
+    // Called every 30 seconds — sync Health Connect
     _syncHealthSteps();
   }
 
@@ -69,7 +82,7 @@ class StepForegroundService {
         playSound: false,
       ),
       foregroundTaskOptions: ForegroundTaskOptions(
-        eventAction: ForegroundTaskEventAction.repeat(30000), // every 30s
+        eventAction: ForegroundTaskEventAction.repeat(30000),
         autoRunOnBoot: true,
         allowWakeLock: true,
         allowWifiLock: false,
@@ -77,14 +90,14 @@ class StepForegroundService {
     );
   }
 
+  // Call this from UI after Health Connect permission granted
   static Future<bool> start() async {
     if (await FlutterForegroundTask.isRunningService) return true;
-
     final result = await FlutterForegroundTask.startService(
-      serviceId:        256,   // any unique int
+      serviceId:         256,
       notificationTitle: 'Health Tracker Active',
       notificationText:  'Counting your steps',
-      callback:           startCallback,
+      callback:          startCallback,
     );
     return result is ServiceRequestSuccess;
   }
@@ -96,4 +109,17 @@ class StepForegroundService {
 
   static Future<bool> get isRunning =>
       FlutterForegroundTask.isRunningService;
+
+  // Call this from your Step screen or Home screen
+  // Requests Health Connect permission then starts service
+  static Future<void> requestPermissionAndStart() async {
+    final health = Health();
+    await health.configure();
+    final granted = await health.requestAuthorization([
+      HealthDataType.STEPS,
+    ]);
+    if (granted) {
+      await start();
+    }
+  }
 }

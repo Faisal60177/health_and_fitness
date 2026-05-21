@@ -1,8 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/router/app_router.dart';
+import '../../../data/services/step_foreground_service.dart';
 import '../providers/auth_provider.dart';
 import '../widgets/auth_text_field.dart';
 
@@ -33,10 +35,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       _emailController.text.trim(),
       _passwordController.text,
     );
+
+    // ← ADD THIS after login
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      await StepForegroundService.requestPermissionAndStart();
+    }
   }
 
   Future<void> _handleGoogleSignIn() async {
     await ref.read(authNotifierProvider.notifier).signInWithGoogle();
+
+    // ← ADD THIS after Google login
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      await StepForegroundService.requestPermissionAndStart();
+    }
   }
 
   // Extract a clean readable message from AsyncError

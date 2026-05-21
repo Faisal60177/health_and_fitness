@@ -8,6 +8,8 @@ import '../../../data/repositories/step_repository.dart';
 import '../../../data/repositories/user_goals_repository.dart';
 import 'package:health_and_fitness/data/services/notification_service.dart';
 
+import '../../../data/services/step_foreground_service.dart';
+
 part 'step_provider.g.dart';
 
 class StepState {
@@ -132,6 +134,8 @@ class StepNotifier extends _$StepNotifier {
 
     // Start live pedometer for real-time updates while app is open
     await _startPedometer();
+
+    await StepForegroundService.requestPermissionAndStart();
   }
 
   // ── Health Connect — counts steps when app is CLOSED ────────────

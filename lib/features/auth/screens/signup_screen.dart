@@ -1,8 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/router/app_router.dart';
+import '../../../data/services/step_foreground_service.dart';
 import '../providers/auth_provider.dart';
 import '../widgets/auth_text_field.dart';
 
@@ -34,13 +36,17 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
   Future<void> _handleSignup() async {
     if (!_formKey.currentState!.validate()) return;
 
-    // ✅ FIX 1: Pass name parameter — was missing before
     await ref.read(authNotifierProvider.notifier).signUp(
       _emailController.text.trim(),
       _passwordController.text,
       _nameController.text.trim(),
     );
-    // Router redirect guard handles navigation after signup
+
+    // ← ADD THIS after signup
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      await StepForegroundService.requestPermissionAndStart();
+    }
   }
 
   // ✅ FIX 2: Strip "Exception: " prefix from error messages
