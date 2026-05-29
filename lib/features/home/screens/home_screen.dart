@@ -86,7 +86,7 @@ class HomeScreen extends ConsumerWidget {
               const SizedBox(height: 20),
 
               // Quick navigation cards
-              _QuickNav(context: context),
+             const _QuickNav(),
             ],
           ),
         ),
@@ -456,8 +456,8 @@ class _WaterQuickCard extends StatelessWidget {
 
 // ─── Quick Navigation Grid ────────────────────
 class _QuickNav extends StatelessWidget {
-  final BuildContext context;
-  const _QuickNav({required this.context});
+
+  const _QuickNav();
 
   @override
   Widget build(BuildContext context) {

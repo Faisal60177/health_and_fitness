@@ -6,7 +6,7 @@ part of 'step_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$stepNotifierHash() => r'b7087c1af3ba984d35897011437ee3f70aee48b2';
+String _$stepNotifierHash() => r'f37e182dc5c7db6faccbf577238fb1ae7556dffd';
 
 /// See also [StepNotifier].
 @ProviderFor(StepNotifier)

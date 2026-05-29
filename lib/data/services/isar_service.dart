@@ -7,7 +7,6 @@ import '../models/food_log.dart';
 import '../models/water_log.dart';
 import '../models/weight_log.dart';
 import '../models/sleep_log.dart';
-import '../models/exercise_cache.dart';
 import '../models/meal_plan.dart';
 import '../models/workout_plan.dart';
 import 'package:health_and_fitness/data/models/user_goals.dart';
@@ -37,7 +36,6 @@ class IsarService {
         WorkoutPlanSchema,
         RecipeSchema,
         MealPlanSchema,
-        ExerciseCacheSchema,
         UserGoalsSchema,
 
       ],  // tell Isar which collections to create

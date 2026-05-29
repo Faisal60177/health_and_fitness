@@ -18,6 +18,7 @@ class WorkoutPlanNotifier extends _$WorkoutPlanNotifier {
   Future<void> startPlan(WorkoutPlan template) async {
     await _repo.startPlan(template);
     ref.invalidateSelf();
+    ref.invalidate(activePlanProvider); // ADD THIS
   }
 }
 

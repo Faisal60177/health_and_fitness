@@ -2,7 +2,6 @@ import 'package:isar/isar.dart';
 
 part 'food_log.g.dart';
 
-// Meal type enum stored as int in Isar
 enum MealType {
   breakfast,
   lunch,
@@ -10,27 +9,25 @@ enum MealType {
   snack,
 }
 
-// One food item logged by the user
 @collection
 class FoodLog {
   Id id = Isar.autoIncrement;
 
+  // FIX: was 'late String uid'
   @Index()
-  late String uid;
+  String uid = '';
 
   late DateTime date;
-  late String foodName;       // "Chicken Breast"
+  late String foodName;
   late double calories;
-  late double proteinG;       // grams of protein
-  late double carbsG;         // grams of carbohydrates
-  late double fatG;           // grams of fat
-  late double servingSize;    // in grams
-  @enumerated                 // stores enum as int index
+  late double proteinG;
+  late double carbsG;
+  late double fatG;
+  late double servingSize;
+  @enumerated
   late MealType mealType;
 
-  // Macro percentages — used for the breakdown ring chart in Phase 4
-  // Total calories from macros: protein=4kcal/g, carbs=4kcal/g, fat=9kcal/g
   double get proteinCalories => proteinG * 4;
-  double get carbCalories => carbsG * 4;
-  double get fatCalories => fatG * 9;
+  double get carbCalories    => carbsG   * 4;
+  double get fatCalories     => fatG     * 9;
 }

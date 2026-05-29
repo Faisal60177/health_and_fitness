@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_theme.dart';
-import '../../../data/models/exercise_cache.dart';
-import '../../../data/services/exercise_api_service.dart';
+import '../../../data/models/local_exercise.dart';
+import '../../../data/services/local_exercise_service.dart';
 import '../providers/exercise_provider.dart';
 import 'exercise_detail_screen.dart';
-// ← removed: cached_network_image, gif_view
 
 class ExerciseDatabaseScreen extends ConsumerStatefulWidget {
   const ExerciseDatabaseScreen({super.key});
@@ -67,10 +66,13 @@ class _ExerciseDatabaseScreenState
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
                 ),
-                contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                contentPadding:
+                const EdgeInsets.symmetric(vertical: 12),
               ),
-              onChanged: (q) =>
-                  ref.read(exerciseNotifierProvider.notifier).search(q),
+              onChanged: (q) {
+                setState(() {}); // update clear button visibility
+                ref.read(exerciseNotifierProvider.notifier).search(q);
+              },
             ),
           ),
 
@@ -88,13 +90,13 @@ class _ExerciseDatabaseScreenState
                       .read(exerciseNotifierProvider.notifier)
                       .loadExercises(),
                 ),
-                ...ExerciseApiService.categoryDisplayMap.entries.map(
-                      (e) => _CategoryChip(
-                    label: e.value,
-                    isSelected: state.selectedCategory == e.key,
+                ...LocalExerciseService.categories.map(
+                      (cat) => _CategoryChip(
+                    label: cat,
+                    isSelected: state.selectedCategory == cat,
                     onTap: () => ref
                         .read(exerciseNotifierProvider.notifier)
-                        .loadExercises(categoryId: e.key),
+                        .loadExercises(category: cat),
                   ),
                 ),
               ],
@@ -103,13 +105,25 @@ class _ExerciseDatabaseScreenState
 
           const SizedBox(height: 8),
 
+          // Exercise count
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                Text(
+                  '${state.exercises.length} exercises',
+                  style: const TextStyle(
+                      color: AppColors.textHint, fontSize: 12),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 4),
+
           // Exercise list
           Expanded(
-            child: state.isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : state.error != null
-                ? _ErrorState(message: state.error!)
-                : state.exercises.isEmpty
+            child: state.exercises.isEmpty
                 ? _EmptyState(searchTerm: state.searchTerm)
                 : ListView.builder(
               padding: const EdgeInsets.all(16),
@@ -133,6 +147,8 @@ class _ExerciseDatabaseScreenState
   }
 }
 
+// ── Category chip ─────────────────────────────────────────────────────────────
+
 class _CategoryChip extends StatelessWidget {
   final String label;
   final bool isSelected;
@@ -150,16 +166,21 @@ class _CategoryChip extends StatelessWidget {
       onTap: onTap,
       child: Container(
         margin: const EdgeInsets.only(right: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        padding:
+        const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary : AppColors.surfaceMuted,
+          color: isSelected
+              ? AppColors.primary
+              : AppColors.surfaceMuted,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Text(
           label,
           style: TextStyle(
             fontSize: 12,
-            color: isSelected ? Colors.black : AppColors.textSecondary,
+            color: isSelected
+                ? Colors.black
+                : AppColors.textSecondary,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -168,16 +189,47 @@ class _CategoryChip extends StatelessWidget {
   }
 }
 
-// ── Updated tile — uses _GifThumbnail instead of raw Image.network ────────────
+// ── Exercise list tile ────────────────────────────────────────────────────────
 
 class _ExerciseListTile extends StatelessWidget {
-  final ExerciseCache exercise;
+  final LocalExercise exercise;
   final VoidCallback onTap;
 
-  const _ExerciseListTile({required this.exercise, required this.onTap});
+  const _ExerciseListTile(
+      {required this.exercise, required this.onTap});
+
+  // Consistent color per category
+  Color _categoryColor(String cat) {
+    switch (cat) {
+      case 'Chest':     return const Color(0xFFFF7043);
+      case 'Back':      return const Color(0xFF42A5F5);
+      case 'Shoulders': return const Color(0xFFA78BFA);
+      case 'Arms':      return const Color(0xFFFFD54F);
+      case 'Legs':      return AppColors.primary;
+      case 'Core':      return const Color(0xFFFF8F00);
+      case 'Cardio':    return const Color(0xFFEF5350);
+      default:          return AppColors.textSecondary;
+    }
+  }
+
+  // Icon per category
+  IconData _categoryIcon(String cat) {
+    switch (cat) {
+      case 'Chest':     return Icons.sports_gymnastics_rounded;
+      case 'Back':      return Icons.airline_seat_recline_extra_rounded;
+      case 'Shoulders': return Icons.accessibility_rounded;
+      case 'Arms':      return Icons.fitness_center_rounded;
+      case 'Legs':      return Icons.directions_run_rounded;
+      case 'Core':      return Icons.radio_button_checked_rounded;
+      case 'Cardio':    return Icons.favorite_rounded;
+      default:          return Icons.fitness_center_rounded;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final color = _categoryColor(exercise.category);
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -189,16 +241,18 @@ class _ExerciseListTile extends StatelessWidget {
         ),
         child: Row(
           children: [
-            // Animated GIF thumbnail
-            ClipRRect(
-              borderRadius: const BorderRadius.horizontal(
-                left: Radius.circular(14),
+            // Category icon box — replaces gif thumbnail
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.12),
+                borderRadius: const BorderRadius.horizontal(
+                  left: Radius.circular(14),
+                ),
               ),
-              child: _GifThumbnail(
-                gifUrl: exercise.gifUrl,
-                width: 90,
-                height: 90,
-              ),
+              child: Icon(_categoryIcon(exercise.category),
+                  color: color, size: 32),
             ),
 
             // Exercise info
@@ -214,19 +268,18 @@ class _ExerciseListTile extends StatelessWidget {
                           .textTheme
                           .bodyLarge
                           ?.copyWith(fontWeight: FontWeight.w600),
-                      maxLines: 2,
+                      maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 6),
                     Row(
                       children: [
-                        _MuscleChip(exercise.category),
+                        _MuscleChip(exercise.category,
+                            color: color),
                         const SizedBox(width: 6),
                         if (exercise.equipment.isNotEmpty)
-                          _MuscleChip(
-                            exercise.equipment.split(',').first.trim(),
-                            color: AppColors.surfaceMuted,
-                          ),
+                          _MuscleChip(exercise.equipment,
+                              color: AppColors.textSecondary),
                       ],
                     ),
                     if (exercise.muscles.isNotEmpty) ...[
@@ -234,9 +287,8 @@ class _ExerciseListTile extends StatelessWidget {
                       Text(
                         exercise.muscles.take(2).join(' · '),
                         style: const TextStyle(
-                          fontSize: 11,
-                          color: AppColors.textHint,
-                        ),
+                            fontSize: 11,
+                            color: AppColors.textHint),
                       ),
                     ],
                   ],
@@ -259,12 +311,13 @@ class _ExerciseListTile extends StatelessWidget {
 class _MuscleChip extends StatelessWidget {
   final String label;
   final Color color;
-  const _MuscleChip(this.label, {this.color = const Color(0xFF00C896)});
+  const _MuscleChip(this.label, {required this.color});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      padding:
+      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
         color: color.withOpacity(0.15),
         borderRadius: BorderRadius.circular(6),
@@ -272,32 +325,9 @@ class _MuscleChip extends StatelessWidget {
       child: Text(
         label,
         style: TextStyle(
-            fontSize: 10, color: color, fontWeight: FontWeight.w500),
-      ),
-    );
-  }
-}
-
-class _ErrorState extends StatelessWidget {
-  final String message;
-  const _ErrorState({required this.message});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.wifi_off_rounded,
-                size: 48, color: AppColors.textHint),
-            const SizedBox(height: 12),
-            Text(message,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium),
-          ],
-        ),
+            fontSize: 10,
+            color: color,
+            fontWeight: FontWeight.w500),
       ),
     );
   }
@@ -323,116 +353,6 @@ class _EmptyState extends StatelessWidget {
             style: Theme.of(context).textTheme.bodyMedium,
           ),
         ],
-      ),
-    );
-  }
-}
-
-// ── GIF thumbnail with loading + error states ─────────────────────────────────
-
-class _GifThumbnail extends StatefulWidget {
-  final String gifUrl;
-  final double width;
-  final double height;
-
-  const _GifThumbnail({
-    required this.gifUrl,
-    required this.width,
-    required this.height,
-  });
-
-  @override
-  State<_GifThumbnail> createState() => _GifThumbnailState();
-}
-
-class _GifThumbnailState extends State<_GifThumbnail> {
-  late final ImageProvider _provider;
-  bool _hasError = false;
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.gifUrl.isEmpty) {
-      _hasError = true;
-      _isLoading = false;
-      return;
-    }
-    _provider = NetworkImage(widget.gifUrl);
-    final stream = _provider.resolve(ImageConfiguration.empty);
-    final listener = ImageStreamListener(
-          (_, __) {
-        if (mounted) setState(() => _isLoading = false);
-      },
-      onError: (_, __) {
-        if (mounted) {
-          setState(() {
-            _hasError = true;
-            _isLoading = false;
-          });
-        }
-      },
-    );
-    stream.addListener(listener);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (_hasError || widget.gifUrl.isEmpty) {
-      return _Placeholder(width: widget.width, height: widget.height);
-    }
-    if (_isLoading) {
-      return _LoadingPlaceholder(width: widget.width, height: widget.height);
-    }
-    return Image(
-      image: _provider,
-      width: widget.width,
-      height: widget.height,
-      fit: BoxFit.cover,
-      gaplessPlayback: true,
-      errorBuilder: (_, __, ___) =>
-          _Placeholder(width: widget.width, height: widget.height),
-    );
-  }
-}
-
-class _Placeholder extends StatelessWidget {
-  final double width;
-  final double height;
-  const _Placeholder({required this.width, required this.height});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: width,
-      height: height,
-      color: AppColors.surfaceMuted,
-      child: const Icon(Icons.fitness_center_rounded,
-          color: AppColors.textHint, size: 28),
-    );
-  }
-}
-
-class _LoadingPlaceholder extends StatelessWidget {
-  final double width;
-  final double height;
-  const _LoadingPlaceholder({required this.width, required this.height});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: width,
-      height: height,
-      color: AppColors.surfaceMuted,
-      child: const Center(
-        child: SizedBox(
-          width: 20,
-          height: 20,
-          child: CircularProgressIndicator(
-            strokeWidth: 2,
-            color: AppColors.primary,
-          ),
-        ),
       ),
     );
   }

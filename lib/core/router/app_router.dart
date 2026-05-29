@@ -15,7 +15,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../features/dashboard/screens/analytics_screen.dart';
 import 'package:health_and_fitness/features/dashboard/screens/charts_screen.dart';
 import 'package:health_and_fitness/features/dashboard/screens/export_screen.dart';
-import '../../features/exercises/screens/exercise_db_screen.dart';
 import '../../features/plans/screens/workout_plans_screen.dart';
 import '../../features/meditation/screens/meditation_screen.dart';
 import '../../features/notifications/screens/notification_settings_screen.dart';
@@ -28,6 +27,8 @@ import 'package:health_and_fitness/data/repositories/user_profile_repository.dar
 import '../../features/steps/screens/step_screen.dart';
 import '../../features/steps/screens/step_goal_screen.dart';
 import 'package:health_and_fitness/features/settings/screens/goals_settings_screen.dart';
+import 'package:health_and_fitness/features/sleep/screens/sleep_screen.dart';
+import '../../features/exercises/screens/exercise_db_screen.dart';
 
 
 
@@ -177,10 +178,6 @@ GoRouter createRouter(Ref ref) {
             builder: (c, s) => const ExportScreen(),
           ),
           GoRoute(
-            path: AppRoutes.exercises,
-            builder: (c, s) => const ExerciseDatabaseScreen(),
-          ),
-          GoRoute(
             path: AppRoutes.plans,
             builder: (c, s) => const WorkoutPlansScreen(),
           ),
@@ -216,6 +213,14 @@ GoRouter createRouter(Ref ref) {
           GoRoute(
             path: AppRoutes.goalsSettings,
             builder: (c, s) => const GoalsSettingsScreen(),
+          ),
+          GoRoute(
+            path: '/sleep',
+            builder: (c, s) => const SleepScreen(),
+          ),
+          GoRoute(
+            path: AppRoutes.exercises,
+            builder: (c, s) => const ExerciseDatabaseScreen(),
           ),
 
         ],

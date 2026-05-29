@@ -6,8 +6,7 @@ part 'meal_plan.g.dart';
 class RecipeIngredient {
   late String name;
   late double amount;
-  late String unit;             // 'g', 'ml', 'cup', 'tbsp'
-
+  late String unit;
   RecipeIngredient();
 }
 
@@ -15,12 +14,14 @@ class RecipeIngredient {
 class Recipe {
   Id id = Isar.autoIncrement;
 
+  // FIX: was 'late String uid' — templates seeded without uid set
+  // caused LateInitializationError on first read
   @Index()
-  late String uid;
+  String uid = '';
 
   late String name;
   late String description;
-  late String category;         // 'breakfast', 'lunch', 'dinner', 'snack'
+  late String category;
   late int prepMinutes;
   late int cookMinutes;
   late int servings;
@@ -29,9 +30,9 @@ class Recipe {
   late double carbsG;
   late double fatG;
   late List<RecipeIngredient> ingredients;
-  late List<String> instructions;   // step-by-step
+  late List<String> instructions;
   String imageUrl = '';
-  List<String> tags = [];           // 'high-protein', 'vegan', 'quick'
+  List<String> tags = [];
 
   Recipe() {
     ingredients  = [];
@@ -45,15 +46,16 @@ class Recipe {
 class MealPlan {
   Id id = Isar.autoIncrement;
 
+  // FIX: same issue
   @Index()
-  late String uid;
+  String uid = '';
 
   late String name;
   late String description;
-  late String goal;             // 'weight_loss', 'muscle_gain', 'maintenance'
+  late String goal;
   late int dailyCalorieTarget;
-  late int durationDays;        // 7, 14, 28
-  late List<String> recipeIds;  // IDs of recipes in this plan
+  late int durationDays;
+  late List<String> recipeIds;
   late DateTime createdAt;
   bool isActive = false;
 

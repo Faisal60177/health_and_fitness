@@ -247,7 +247,9 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
         ...sleepRows,
       ];
 
-      final csvString = const ListToCsvConverter().convert(allRows);
+      final csvString =  Csv().encoder.convert(
+        allRows.map((row) => row.map((e) => e.toString()).toList()).toList(),
+      );
       final dir  = await getTemporaryDirectory();
       final file = File('${dir.path}/health_data.csv');
       await file.writeAsString(csvString);

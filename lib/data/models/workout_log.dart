@@ -2,75 +2,56 @@ import 'package:isar/isar.dart';
 
 part 'workout_log.g.dart';
 
-// Represents ONE exercise set inside a workout session
-// Example: Bench Press — Set 1: 80kg × 10 reps
-@embedded  // embedded = stored inside WorkoutSession, not as its own collection
+@embedded
 class WorkoutSet {
   late double weightKg;
   late int reps;
-  late int durationSeconds; // for timed exercises like planks
+  late int durationSeconds;
   late bool isCompleted;
 
   WorkoutSet();
 
-  // Factory constructor for clean creation
   factory WorkoutSet.create({
     double weightKg = 0,
     int reps = 0,
     int durationSeconds = 0,
   }) {
     return WorkoutSet()
-      ..weightKg = weightKg
-      ..reps = reps
+      ..weightKg        = weightKg
+      ..reps            = reps
       ..durationSeconds = durationSeconds
-      ..isCompleted = false;
+      ..isCompleted     = false;
   }
 }
 
-// Represents ONE exercise with multiple sets
-// Example: Bench Press — 3 sets
 @embedded
 class WorkoutExercise {
-  late String name;          // "Bench Press"
-  late String muscleGroup;   // "Chest"
+  late String name;
+  late String muscleGroup;
   late List<WorkoutSet> sets;
 
-  WorkoutExercise() {
-    sets = [];
-  }
+  WorkoutExercise() { sets = []; }
 
-  // Total volume = sum of (weight × reps) for all sets
-  // This is the key metric for strength progress tracking
-  double get totalVolume => sets.fold(
-    0.0,
-        (sum, set) => sum + (set.weightKg * set.reps),
-  );
+  double get totalVolume =>
+      sets.fold(0.0, (sum, set) => sum + (set.weightKg * set.reps));
 }
 
-// Represents ONE complete workout session
-// Example: "Monday Push Day" — 5 exercises, 45 minutes
 @collection
 class WorkoutSession {
   Id id = Isar.autoIncrement;
 
+  // FIX: was 'late String uid'
   @Index()
-  late String uid;
+  String uid = '';
 
-  late String name;                    // "Push Day", "Leg Day"
+  late String name;
   late DateTime date;
   late int durationMinutes;
   late List<WorkoutExercise> exercises;
   String notes = '';
 
-  WorkoutSession() {
-    exercises = [];
-  }
+  WorkoutSession() { exercises = []; }
 
-  // Total sets across all exercises
-  int get totalSets =>
-      exercises.fold(0, (sum, ex) => sum + ex.sets.length);
-
-  // Total volume lifted in this session
-  double get totalVolume =>
-      exercises.fold(0.0, (sum, ex) => sum + ex.totalVolume);
+  int    get totalSets   => exercises.fold(0,   (sum, ex) => sum + ex.sets.length);
+  double get totalVolume => exercises.fold(0.0, (sum, ex) => sum + ex.totalVolume);
 }

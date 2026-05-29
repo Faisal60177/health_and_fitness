@@ -17,7 +17,7 @@ class HealthApp extends ConsumerWidget {
 
 
     return MaterialApp.router(
-      title: 'Health & Fitness',
+      title: 'HealthFit Life',
       debugShowCheckedModeBanner: false,
       theme:      AppTheme.lightTheme,   // light theme
       darkTheme:  AppTheme.darkTheme,    // dark theme

@@ -87,9 +87,9 @@ class MealRepository {
   // ── Meal Plans ────────────────────────────────────────────
 
   Future<void> saveMealPlan(MealPlan plan) async {
-    // Templates have uid='' already set during seeding
-    // User-activated plans need uid stamped
-    if (plan.uid.isNotEmpty == false && plan.isActive) {
+    // Stamp uid when activating a user plan
+    // Templates keep uid = '' so all users see them
+    if (plan.isActive && plan.uid.isEmpty) {
       plan.uid = _uid;
     }
     await _db.writeTxn(() async {

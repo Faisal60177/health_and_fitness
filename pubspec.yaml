@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.0+2
+version: 1.0.0+3
 
 environment:
   sdk: ^3.11.5
@@ -37,7 +37,7 @@ dependencies:
   timezone: ^0.11.0
 
   # Navigation
-  go_router: ^13.2.0
+  go_router: ^17.2.3
 
   # State Management
   flutter_riverpod: ^2.5.1
@@ -56,20 +56,20 @@ dependencies:
   firebase_analytics: ^12.3.0
 
   # Google Sign In
-  google_sign_in: ^6.2.1
+  google_sign_in: ^7.2.0
 
   # Secure Storage
-  flutter_secure_storage: ^9.0.0
+  flutter_secure_storage: ^10.3.1
 
   # UI & Theming
-  google_fonts: ^6.2.1
+  google_fonts: ^8.1.0
   flutter_svg: ^2.0.10+1
   cached_network_image: ^3.3.1
   shimmer: ^3.0.0
   lottie: ^3.1.2
 
   # Utilities
-  intl: ^0.18.1
+  intl: ^0.20.2
   equatable: ^2.0.5
   dartz: ^0.10.1
   freezed_annotation: ^2.4.1
@@ -79,11 +79,11 @@ dependencies:
 
   # Sensors / Health
   pedometer: ^4.0.1
-  permission_handler: ^11.3.1
+  permission_handler: ^12.0.1
   health: ^13.3.1
 
   # Charts
-  fl_chart: ^0.68.0
+  fl_chart: ^1.2.0
 
   # Image Picker
   image_picker: ^1.1.2
@@ -99,19 +99,14 @@ dependencies:
   table_calendar: ^3.0.9
 
   # CSV writing
-  csv: ^6.0.0
+  csv: ^8.0.0
 
 
   # Connectivity
-  connectivity_plus: ^6.0.3
-
-  # HTTP for Exercise API calls
-  http: ^1.2.1
+  connectivity_plus: ^7.1.1
 
   # Local push notifications
   flutter_local_notifications: ^21.0.0
-
-  gif_view: ^1.0.3
 
   google_generative_ai: ^0.4.7
   in_app_purchase: ^3.2.3
@@ -120,6 +115,7 @@ dependencies:
 
   flutter_foreground_task: ^9.2.2
   flutter_launcher_icons: ^0.14.4
+  get: ^4.7.3
 
 
 flutter_launcher_icons:

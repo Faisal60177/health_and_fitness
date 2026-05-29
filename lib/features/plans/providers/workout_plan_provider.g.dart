@@ -21,7 +21,7 @@ final activePlanProvider = AutoDisposeFutureProvider<WorkoutPlan?>.internal(
 
 typedef ActivePlanRef = AutoDisposeFutureProviderRef<WorkoutPlan?>;
 String _$workoutPlanNotifierHash() =>
-    r'47e7dc3ee6d673d56a91792a2282d89681485be5';
+    r'beadcf05bc41f092e59b75adf93de87deab65486';
 
 /// See also [WorkoutPlanNotifier].
 @ProviderFor(WorkoutPlanNotifier)

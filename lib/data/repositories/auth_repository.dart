@@ -4,7 +4,9 @@ import '../services/secure_storage_service.dart';
 
 class AuthRepository {
   final _firebaseAuth = FirebaseAuth.instance;
-  final _googleSignIn = GoogleSignIn();
+
+  // v7: use singleton, no constructor
+  GoogleSignIn get _googleSignIn => GoogleSignIn.instance;
 
   // ── EMAIL SIGN UP ──────────────────────────────────────────────
   Future<User> signUp({
@@ -14,45 +16,33 @@ class AuthRepository {
   }) async {
     try {
       final credential = await _firebaseAuth.createUserWithEmailAndPassword(
-        email:    email,
+        email:    email.trim(),
         password: password,
       );
-
-      await credential.user!.updateDisplayName(name);
+      await credential.user!.updateDisplayName(name.trim());
       await credential.user!.reload();
       await SecureStorageService.saveUserId(credential.user!.uid);
       return _firebaseAuth.currentUser!;
-
     } on FirebaseAuthException catch (e) {
       throw Exception(_handleFirebaseError(e));
-    } catch (e) {
+    } catch (_) {
       throw Exception('Sign up failed. Please try again.');
     }
   }
 
   // ── EMAIL LOGIN ────────────────────────────────────────────────
-  // Strategy: just attempt login, catch errors and show smart messages.
-  // Firebase v10+ returns 'invalid-credential' for wrong password AND
-  // for Google-only accounts — we handle both in the catch block.
   Future<User> login({
     required String email,
     required String password,
   }) async {
     try {
       final credential = await _firebaseAuth.signInWithEmailAndPassword(
-        email:    email,
+        email:    email.trim(),
         password: password,
       );
-
       await SecureStorageService.saveUserId(credential.user!.uid);
       return credential.user!;
-
     } on FirebaseAuthException catch (e) {
-      // 'invalid-credential' covers:
-      //   - wrong password
-      //   - user doesn't exist
-      //   - Google-only account trying email+pass
-      // We give a helpful message that covers all cases
       if (e.code == 'invalid-credential' || e.code == 'wrong-password') {
         throw Exception(
           'Incorrect email or password.\n'
@@ -60,49 +50,72 @@ class AuthRepository {
         );
       }
       throw Exception(_handleFirebaseError(e));
-    } catch (e) {
+    } catch (_) {
       throw Exception('Login failed. Please try again.');
     }
   }
 
   // ── GOOGLE SIGN IN ─────────────────────────────────────────────
-  // Strategy: signInWithCredential handles ALL cases automatically:
-  //   Case 1 - New user:         creates account + signs in
-  //   Case 2 - Existing Google:  signs in normally
-  //   Case 3 - Email+pass user:  throws 'account-exists-with-different-credential'
-  //                              which we catch and guide them to use password
+  // v7 API — initialize() must be called once at app startup
   Future<User> signInWithGoogle() async {
     try {
-      // Step 1: Trigger Google account picker
-      final googleUser = await _googleSignIn.signIn();
-      if (googleUser == null) throw Exception('Google sign-in was cancelled.');
+      // v7: authenticate() replaces signIn()
+      // Always shows account picker (sign out first)
+      try {
+        await _googleSignIn.signOut();
+      } catch (_) {}
 
-      // Step 2: Get Google auth tokens
-      final googleAuth = await googleUser.authentication;
+      if (!_googleSignIn.supportsAuthenticate()) {
+        throw Exception(
+          'Google Sign-In is not supported on this platform.',
+        );
+      }
+
+      final GoogleSignInAccount googleUser =
+      await _googleSignIn.authenticate();
+
+      // idToken requires serverClientId set in initialize()
+      final String? idToken = googleUser.authentication.idToken;
+      if (idToken == null) {
+        throw Exception(
+          'Google sign-in failed: idToken is null. '
+              'Check your SHA-1 fingerprint and serverClientId.',
+        );
+      }
+
+      // accessToken from authorizationClient on the account object (v7)
+      final clientAuth =
+          await googleUser.authorizationClient.authorizationForScopes(
+            ['email', 'profile'],
+          ) ??
+              await googleUser.authorizationClient.authorizeScopes(
+                ['email', 'profile'],
+              );
+
       final googleCredential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken:     googleAuth.idToken,
+        idToken:     idToken,
+        accessToken: clientAuth?.accessToken,
       );
 
-      // Step 3: Sign in to Firebase with Google credential
       final userCredential =
       await _firebaseAuth.signInWithCredential(googleCredential);
 
-      // Step 4: Ensure display name is always set
-      if (userCredential.user!.displayName == null ||
-          userCredential.user!.displayName!.isEmpty) {
-        await userCredential.user!.updateDisplayName(googleUser.displayName);
-        await userCredential.user!.reload();
+      // Ensure display name is set
+      final user = userCredential.user!;
+      if (user.displayName == null || user.displayName!.isEmpty) {
+        await user.updateDisplayName(googleUser.displayName ?? '');
+        await user.reload();
       }
 
-      await SecureStorageService.saveUserId(
-          _firebaseAuth.currentUser!.uid);
+      await SecureStorageService.saveUserId(_firebaseAuth.currentUser!.uid);
       return _firebaseAuth.currentUser!;
-
+    } on GoogleSignInException catch (e) {
+      // User dismissed picker — silent
+      if (e.code.name == 'canceled') {
+        throw Exception('');
+      }
+      throw Exception('Google sign-in failed. Please try again.');
     } on FirebaseAuthException catch (e) {
-      // This fires when Firebase console has
-      // "One account per email" ON and email already
-      // exists under email+password provider
       if (e.code == 'account-exists-with-different-credential') {
         throw Exception(
           'This email is already registered with a password.\n'
@@ -111,38 +124,59 @@ class AuthRepository {
       }
       throw Exception(_handleFirebaseError(e));
     } catch (e) {
-      // Re-throw our own exceptions (like cancelled)
       if (e is Exception) rethrow;
       throw Exception('Google sign-in failed. Please try again.');
     }
   }
 
-  // ── LINK Google TO email+password account ──────────────────────
-  // Optional: call this from a Settings screen so users who signed
-  // up with email+pass can ALSO use Google to sign in going forward.
-  // After linking, both methods work for the same account.
+  // ── INITIALIZE Google Sign-In (call once in main.dart) ─────────
+  // Must be called before any Google sign-in attempt
+  static Future<void> initializeGoogleSignIn({
+    required String webClientId,
+  }) async {
+    try {
+      await GoogleSignIn.instance.initialize(
+        serverClientId: webClientId,
+      );
+    } catch (_) {
+      // Non-fatal — user can still attempt sign-in manually
+    }
+  }
+
+  // ── LINK Google to email+password account ──────────────────────
   Future<void> linkGoogleToCurrentAccount() async {
     try {
       final currentUser = _firebaseAuth.currentUser;
-      if (currentUser == null) throw Exception('No user is currently signed in.');
+      if (currentUser == null) throw Exception('No user signed in.');
 
-      final googleUser = await _googleSignIn.signIn();
-      if (googleUser == null) throw Exception('Google sign-in was cancelled.');
+      try {
+        await _googleSignIn.signOut();
+      } catch (_) {}
 
-      final googleAuth = await googleUser.authentication;
+      final GoogleSignInAccount googleUser =
+      await _googleSignIn.authenticate();
+
+      final String? idToken = googleUser.authentication.idToken;
+      if (idToken == null) throw Exception('Google idToken is null.');
+
+      final clientAuth =
+          await googleUser.authorizationClient.authorizationForScopes(
+            ['email', 'profile'],
+          ) ??
+              await googleUser.authorizationClient.authorizeScopes(
+                ['email', 'profile'],
+              );
+
       final googleCredential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken:     googleAuth.idToken,
+        idToken:     idToken,
+        accessToken: clientAuth?.accessToken,
       );
 
-      // linkWithCredential adds Google as a second sign-in method
-      // to the existing email+password account
       await currentUser.linkWithCredential(googleCredential);
-
     } on FirebaseAuthException catch (e) {
       if (e.code == 'credential-already-in-use') {
         throw Exception(
-            'This Google account is already linked to a different user.');
+            'This Google account is already linked to another user.');
       }
       if (e.code == 'provider-already-linked') {
         throw Exception('Google is already linked to your account.');
@@ -154,28 +188,26 @@ class AuthRepository {
     }
   }
 
-  // ── CHECK if Google is linked to current account ───────────────
-  // Use this to show/hide "Link Google Account" button in Settings
+  // ── CHECK providers ────────────────────────────────────────────
   bool get isGoogleLinked {
     final user = _firebaseAuth.currentUser;
     if (user == null) return false;
-    return user.providerData
-        .any((info) => info.providerId == 'google.com');
+    return user.providerData.any((p) => p.providerId == 'google.com');
   }
 
-  // ── CHECK if email+password is linked ─────────────────────────
   bool get isEmailLinked {
     final user = _firebaseAuth.currentUser;
     if (user == null) return false;
-    return user.providerData
-        .any((info) => info.providerId == 'password');
+    return user.providerData.any((p) => p.providerId == 'password');
   }
 
   // ── LOGOUT ─────────────────────────────────────────────────────
   Future<void> logout() async {
+    try {
+      await _googleSignIn.signOut();
+    } catch (_) {}
     await Future.wait([
       _firebaseAuth.signOut(),
-      _googleSignIn.signOut(),
       SecureStorageService.clearAll(),
     ]);
   }
@@ -183,48 +215,44 @@ class AuthRepository {
   // ── PASSWORD RESET ─────────────────────────────────────────────
   Future<void> sendPasswordReset(String email) async {
     try {
-      await _firebaseAuth.sendPasswordResetEmail(email: email);
+      await _firebaseAuth.sendPasswordResetEmail(email: email.trim());
     } on FirebaseAuthException catch (e) {
       throw Exception(_handleFirebaseError(e));
     }
   }
 
-  // ── AUTH STATE ─────────────────────────────────────────────────
+  // ── AUTH STATE STREAM ──────────────────────────────────────────
   Stream<User?> get authStateChanges =>
       _firebaseAuth.authStateChanges();
 
   User? get currentUser => _firebaseAuth.currentUser;
 
-  // ── READABLE ERROR MESSAGES ────────────────────────────────────
+  // ── ERROR MESSAGES ─────────────────────────────────────────────
   String _handleFirebaseError(FirebaseAuthException e) {
     switch (e.code) {
       case 'email-already-in-use':
-        return 'An account already exists with this email.\n'
-            'Try signing in, or use "Continue with Google" if you registered with Google.';
+        return 'An account already exists with this email.';
       case 'user-not-found':
         return 'No account found with this email. Please sign up first.';
       case 'wrong-password':
-        return 'Incorrect password. Please try again.';
       case 'invalid-credential':
-        return 'Incorrect email or password.\n'
-            'If you signed up with Google, use "Continue with Google" instead.';
+        return 'Incorrect email or password.';
       case 'weak-password':
         return 'Password must be at least 6 characters.';
       case 'invalid-email':
         return 'Please enter a valid email address.';
       case 'too-many-requests':
-        return 'Too many failed attempts. Please wait a moment and try again.';
+        return 'Too many attempts. Please wait and try again.';
       case 'network-request-failed':
         return 'No internet connection. Please check your network.';
       case 'account-exists-with-different-credential':
-        return 'This email is registered with a different sign-in method.\n'
-            'Please use your email and password to sign in.';
+        return 'This email is registered with a different sign-in method.';
       case 'credential-already-in-use':
         return 'This credential is already linked to another account.';
       case 'provider-already-linked':
         return 'This sign-in method is already linked to your account.';
-      case 'operation-not-allowed':
-        return 'This sign-in method is not enabled. Please contact support.';
+      case 'requires-recent-login':
+        return 'Please sign in again before making this change.';
       case 'user-disabled':
         return 'This account has been disabled. Please contact support.';
       default:

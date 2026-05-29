@@ -13,16 +13,13 @@ class PlanDay {
 
 @embedded
 class PlanExercise {
-  // FIX: was 'late String exerciseId' — caused LateInitializationError
-  // because _planEx() helper never assigned it.
-  // Give it a safe default empty string instead.
-  String exerciseId = '';         // ← KEY FIX: no 'late', has default
-  late String exerciseName;
-  late String muscleGroup;
-  late int sets;
-  late int reps;
-  late int restSeconds;
-  String gifUrl = '';
+  String exerciseId   = '';   // safe default — no 'late'
+  String exerciseName = '';   // safe default — no 'late'
+  String muscleGroup  = '';   // safe default — no 'late'
+  int    sets         = 3;    // safe default
+  int    reps         = 10;   // safe default
+  int    restSeconds  = 90;   // safe default
+  String gifUrl       = '';   // safe default
 
   PlanExercise();
 }
@@ -31,8 +28,10 @@ class PlanExercise {
 class WorkoutPlan {
   Id id = Isar.autoIncrement;
 
+  // KEY FIX: 'late' removed — default empty string prevents
+  // LateInitializationError when templates are read before uid is set
   @Index()
-  late String uid;
+  String uid = '';
 
   late String name;
   late String description;
@@ -44,7 +43,7 @@ class WorkoutPlan {
   late DateTime createdAt;
   bool isTemplate = true;
   int currentWeek = 1;
-  int currentDay = 1;
+  int currentDay  = 1;
 
   WorkoutPlan() { days = []; }
 
