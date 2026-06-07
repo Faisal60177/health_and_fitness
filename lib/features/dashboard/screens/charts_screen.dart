@@ -4,9 +4,9 @@ import 'package:fl_chart/fl_chart.dart';
 import '../../../core/theme/app_theme.dart';
 import '../providers/analytics_provider.dart';
 import '../../../data/repositories/user_goals_repository.dart';
+import '../../../data/models/workout_log.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../data/models/user_goals.dart';
-
 
 part 'charts_screen.g.dart';
 
@@ -14,7 +14,6 @@ part 'charts_screen.g.dart';
 Future<UserGoals> userGoals(UserGoalsRef ref) async {
   return UserGoalsRepository().getGoals();
 }
-
 
 class ChartsScreen extends ConsumerStatefulWidget {
   const ChartsScreen({super.key});
@@ -30,8 +29,7 @@ class _ChartsScreenState extends ConsumerState<ChartsScreen>
   @override
   void initState() {
     super.initState();
-    // Tabs: Steps, Calories, Sleep, Weight
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 5, vsync: this); // ✅ was 4
   }
 
   @override
@@ -51,7 +49,6 @@ class _ChartsScreenState extends ConsumerState<ChartsScreen>
         title: const Text('Charts',
             style: TextStyle(color: AppColors.textPrimary)),
         actions: [
-          // Week / Month toggle
           analyticsAsync.when(
             loading: () => const SizedBox.shrink(),
             error: (_, __) => const SizedBox.shrink(),
@@ -72,11 +69,14 @@ class _ChartsScreenState extends ConsumerState<ChartsScreen>
           unselectedLabelColor: AppColors.textHint,
           indicatorColor: AppColors.primary,
           indicatorSize: TabBarIndicatorSize.label,
+          isScrollable: true,            // ✅ needed for 5 tabs to fit
+          tabAlignment: TabAlignment.start,
           tabs: const [
             Tab(text: 'Steps'),
             Tab(text: 'Calories'),
             Tab(text: 'Sleep'),
             Tab(text: 'Weight'),
+            Tab(text: 'Workouts'),        // ✅ new tab
           ],
         ),
       ),
@@ -90,6 +90,7 @@ class _ChartsScreenState extends ConsumerState<ChartsScreen>
             _CaloriesChart(data: data),
             _SleepChart(data: data),
             _WeightChart(data: data),
+            _WorkoutsChart(data: data),   // ✅ new chart
           ],
         ),
       ),
@@ -97,6 +98,7 @@ class _ChartsScreenState extends ConsumerState<ChartsScreen>
   }
 }
 
+// ─── Range Toggle ─────────────────────────────
 class _RangeToggle extends StatelessWidget {
   final AnalyticsRange currentRange;
   final ValueChanged<AnalyticsRange> onChanged;
@@ -151,22 +153,21 @@ class _StepsChart extends ConsumerWidget {
       error:   (_, __) => 10000.0,
     );
 
-    if (data.stepHistory.isEmpty) return const _EmptyChart(label: 'No step data yet');
+    if (data.stepHistory.isEmpty) {
+      return const _EmptyChart(label: 'No step data yet');
+    }
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Summary row
           _ChartSummary(
             label: 'Daily average',
             value: '${data.avgSteps.toStringAsFixed(0)} steps',
             color: AppColors.primary,
           ),
           const SizedBox(height: 20),
-
-          // Bar chart
           Container(
             height: 240,
             padding: const EdgeInsets.all(16),
@@ -178,7 +179,10 @@ class _StepsChart extends ConsumerWidget {
             child: BarChart(
               BarChartData(
                 maxY: ([
-                  data.stepHistory.map((e) => e.stepCount).reduce((a, b) => a > b ? a : b).toDouble(),
+                  data.stepHistory
+                      .map((e) => e.stepCount)
+                      .reduce((a, b) => a > b ? a : b)
+                      .toDouble(),
                   stepGoal,
                 ].reduce((a, b) => a > b ? a : b) * 1.2),
                 barTouchData: BarTouchData(
@@ -194,7 +198,9 @@ class _StepsChart extends ConsumerWidget {
                     showTitles: true,
                     reservedSize: 44,
                     getTitlesWidget: (v, _) => Text(
-                      v >= 1000 ? '${(v / 1000).toStringAsFixed(0)}k' : '${v.toInt()}',
+                      v >= 1000
+                          ? '${(v / 1000).toStringAsFixed(0)}k'
+                          : '${v.toInt()}',
                       style: const TextStyle(
                           color: AppColors.textHint, fontSize: 10),
                     ),
@@ -219,7 +225,6 @@ class _StepsChart extends ConsumerWidget {
                 ),
                 gridData: FlGridData(
                   show: true,
-                  // Dashed line at 10,000 steps goal
                   getDrawingHorizontalLine: (v) => FlLine(
                     color: v == stepGoal
                         ? AppColors.primary.withOpacity(0.5)
@@ -237,7 +242,6 @@ class _StepsChart extends ConsumerWidget {
                     barRods: [
                       BarChartRodData(
                         toY: e.value.stepCount.toDouble(),
-                        // Green if goal reached, muted if not
                         color: reached
                             ? AppColors.primary
                             : AppColors.primary.withOpacity(0.4),
@@ -258,21 +262,19 @@ class _StepsChart extends ConsumerWidget {
 }
 
 // ─── Calories Line Chart ──────────────────────
-class _CaloriesChart extends ConsumerWidget  {
+class _CaloriesChart extends ConsumerWidget {
   final AnalyticsData data;
   const _CaloriesChart({required this.data});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final goalsAsync = ref.watch(userGoalsProvider);  // ← watch goals
-
+    final goalsAsync = ref.watch(userGoalsProvider);
     final calorieGoal = goalsAsync.when(
       data:    (g) => g.dailyCalorieTarget.toDouble(),
       loading: () => 2000.0,
       error:   (_, __) => 2000.0,
     );
 
-    // Group food logs by day → daily calorie totals
     final byDay = <String, double>{};
     for (final f in data.foodHistory) {
       final key = '${f.date.year}-${f.date.month}-${f.date.day}';
@@ -281,9 +283,9 @@ class _CaloriesChart extends ConsumerWidget  {
 
     if (byDay.isEmpty) return const _EmptyChart(label: 'No calorie data yet');
 
-    final spots = byDay.values.toList().asMap().entries.map(
-          (e) => FlSpot(e.key.toDouble(), e.value),
-    ).toList();
+    final spots = byDay.values.toList().asMap().entries
+        .map((e) => FlSpot(e.key.toDouble(), e.value))
+        .toList();
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
@@ -313,8 +315,7 @@ class _CaloriesChart extends ConsumerWidget  {
                         LineTooltipItem(
                           '${s.y.toStringAsFixed(0)} kcal',
                           const TextStyle(color: Colors.white, fontSize: 11),
-                        ),
-                    ).toList(),
+                        )).toList(),
                   ),
                 ),
                 titlesData: FlTitlesData(
@@ -337,13 +338,12 @@ class _CaloriesChart extends ConsumerWidget  {
                 ),
                 gridData: FlGridData(
                   show: true,
-                  // Goal line at 2000 kcal
                   getDrawingHorizontalLine: (v) => FlLine(
-                    color: v == calorieGoal         // ← was v == 2000
+                    color: v == calorieGoal
                         ? const Color(0xFFFF7043).withOpacity(0.5)
                         : AppColors.surfaceMuted.withOpacity(0.4),
-                    strokeWidth: v == calorieGoal ? 1.5 : 0.5,   // ← was 2000
-                    dashArray:   v == calorieGoal ? [4, 4] : null, // ← was 2000
+                    strokeWidth: v == calorieGoal ? 1.5 : 0.5,
+                    dashArray: v == calorieGoal ? [4, 4] : null,
                   ),
                   horizontalInterval: 500,
                 ),
@@ -370,7 +370,7 @@ class _CaloriesChart extends ConsumerWidget  {
   }
 }
 
-// ─── Sleep Chart (bar) ────────────────────────
+// ─── Sleep Bar Chart ──────────────────────────
 class _SleepChart extends StatelessWidget {
   final AnalyticsData data;
   const _SleepChart({required this.data});
@@ -477,12 +477,14 @@ class _WeightChart extends StatelessWidget {
     final logs = data.weightHistory.reversed.toList();
     if (logs.isEmpty) return const _EmptyChart(label: 'No weight data yet');
 
-    final spots = logs.asMap().entries.map(
-          (e) => FlSpot(e.key.toDouble(), e.value.weightKg),
-    ).toList();
+    final spots = logs.asMap().entries
+        .map((e) => FlSpot(e.key.toDouble(), e.value.weightKg))
+        .toList();
 
-    final minY = logs.map((l) => l.weightKg).reduce((a, b) => a < b ? a : b) - 2;
-    final maxY = logs.map((l) => l.weightKg).reduce((a, b) => a > b ? a : b) + 2;
+    final minY = logs.map((l) => l.weightKg)
+        .reduce((a, b) => a < b ? a : b) - 2;
+    final maxY = logs.map((l) => l.weightKg)
+        .reduce((a, b) => a > b ? a : b) + 2;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
@@ -500,7 +502,8 @@ class _WeightChart extends StatelessWidget {
               if (logs.length >= 2)
                 _ChartSummary(
                   label: 'Change',
-                  value: '${(logs.last.weightKg - logs.first.weightKg).toStringAsFixed(1)} kg',
+                  value:
+                  '${(logs.last.weightKg - logs.first.weightKg).toStringAsFixed(1)} kg',
                   color: logs.last.weightKg <= logs.first.weightKg
                       ? AppColors.success
                       : AppColors.danger,
@@ -526,8 +529,7 @@ class _WeightChart extends StatelessWidget {
                         LineTooltipItem(
                           '${s.y.toStringAsFixed(1)} kg',
                           const TextStyle(color: Colors.white, fontSize: 11),
-                        ),
-                    ).toList(),
+                        )).toList(),
                   ),
                 ),
                 titlesData: FlTitlesData(
@@ -572,21 +574,277 @@ class _WeightChart extends StatelessWidget {
   }
 }
 
+// ─── Workouts Bar Chart ───────────────────────
+class _WorkoutsChart extends StatelessWidget {
+  final AnalyticsData data;
+  const _WorkoutsChart({required this.data});
+
+  static const _barColor = Color(0xFFA78BFA);
+
+  @override
+  Widget build(BuildContext context) {
+    final logs = data.workoutHistory.reversed.toList();
+    if (logs.isEmpty) return const _EmptyChart(label: 'No workout data yet');
+
+    final maxDuration = logs
+        .map((l) => l.durationMinutes)
+        .reduce((a, b) => a > b ? a : b)
+        .toDouble();
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Summary row
+          Row(
+            children: [
+              _ChartSummary(
+                label: 'Avg duration',
+                value:
+                '${data.avgWorkoutDuration.toStringAsFixed(0)} min',
+                color: _barColor,
+              ),
+              const SizedBox(width: 16),
+              _ChartSummary(
+                label: 'Sessions',
+                value: '${logs.length}',
+                color: AppColors.primary,
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+
+          // Duration bar chart
+          Container(
+            height: 240,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.surfaceCard,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.surfaceMuted),
+            ),
+            child: BarChart(
+              BarChartData(
+                maxY: maxDuration * 1.2,
+                barTouchData: BarTouchData(
+                  touchTooltipData: BarTouchTooltipData(
+                    getTooltipItem: (g, gi, rod, ri) => BarTooltipItem(
+                      '${rod.toY.toStringAsFixed(0)} min\n${logs[g.x.toInt()].name}',
+                      const TextStyle(color: Colors.white, fontSize: 11),
+                    ),
+                  ),
+                ),
+                titlesData: FlTitlesData(
+                  leftTitles: AxisTitles(sideTitles: SideTitles(
+                    showTitles: true,
+                    reservedSize: 36,
+                    getTitlesWidget: (v, _) => Text('${v.toInt()}m',
+                        style: const TextStyle(
+                            color: AppColors.textHint, fontSize: 10)),
+                    interval: 20,
+                  )),
+                  rightTitles: AxisTitles(
+                      sideTitles: SideTitles(showTitles: false)),
+                  topTitles: AxisTitles(
+                      sideTitles: SideTitles(showTitles: false)),
+                  bottomTitles: AxisTitles(sideTitles: SideTitles(
+                    showTitles: true,
+                    getTitlesWidget: (v, _) {
+                      final i = v.toInt();
+                      if (i < 0 || i >= logs.length) {
+                        return const SizedBox.shrink();
+                      }
+                      final d = logs[i].date;
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 4),
+                        child: Text('${d.day}/${d.month}',
+                            style: const TextStyle(
+                                color: AppColors.textHint, fontSize: 9)),
+                      );
+                    },
+                  )),
+                ),
+                gridData: FlGridData(
+                  show: true,
+                  horizontalInterval: 20,
+                  getDrawingHorizontalLine: (v) => FlLine(
+                    color: AppColors.surfaceMuted.withOpacity(0.5),
+                    strokeWidth: 0.5,
+                  ),
+                ),
+                borderData: FlBorderData(show: false),
+                barGroups: logs.asMap().entries.map((e) {
+                  return BarChartGroupData(
+                    x: e.key,
+                    barRods: [
+                      BarChartRodData(
+                        toY: e.value.durationMinutes.toDouble(),
+                        color: _barColor,
+                        width: data.range == AnalyticsRange.week ? 24 : 10,
+                        borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(6)),
+                      ),
+                    ],
+                  );
+                }).toList(),
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+
+          // Stats summary card
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+            decoration: BoxDecoration(
+              color: AppColors.surfaceCard,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.surfaceMuted),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _StatPill(
+                  label: 'Total volume',
+                  value: data.totalVolume >= 1000
+                      ? '${(data.totalVolume / 1000).toStringAsFixed(1)}t'
+                      : '${data.totalVolume.toStringAsFixed(0)}kg',
+                  color: _barColor,
+                ),
+                _StatPill(
+                  label: 'Total sets',
+                  value: '${data.totalSets}',
+                  color: AppColors.primary,
+                ),
+                _StatPill(
+                  label: 'Sessions',
+                  value: '${logs.length}',
+                  color: const Color(0xFFFF7043),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+
+          // Recent sessions list
+          Text('Recent sessions',
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  fontWeight: FontWeight.w600)),
+          const SizedBox(height: 12),
+          ...logs.take(5).map((session) => _WorkoutSessionTile(
+              session: session)),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Workout Session Tile ─────────────────────
+class _WorkoutSessionTile extends StatelessWidget {
+  final WorkoutSession session;
+  const _WorkoutSessionTile({required this.session});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceCard,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.surfaceMuted),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 42, height: 42,
+            decoration: BoxDecoration(
+              color: const Color(0xFFA78BFA).withOpacity(0.12),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Icon(Icons.fitness_center_rounded,
+                color: Color(0xFFA78BFA), size: 20),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(session.name,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textPrimary,
+                        fontSize: 14)),
+                const SizedBox(height: 2),
+                Text(
+                  '${session.date.day}/${session.date.month}/${session.date.year}  •  '
+                      '${session.exercises.length} exercises  •  '
+                      '${session.totalSets} sets',
+                  style: const TextStyle(
+                      fontSize: 12, color: AppColors.textHint),
+                ),
+              ],
+            ),
+          ),
+          Text(
+            '${session.durationMinutes} min',
+            style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFFA78BFA)),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Shared Widgets ───────────────────────────
+class _StatPill extends StatelessWidget {
+  final String label;
+  final String value;
+  final Color color;
+  const _StatPill(
+      {required this.label, required this.value, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(value,
+            style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: color)),
+        const SizedBox(height: 4),
+        Text(label,
+            style: const TextStyle(
+                fontSize: 11, color: AppColors.textHint)),
+      ],
+    );
+  }
+}
+
 class _ChartSummary extends StatelessWidget {
   final String label;
   final String value;
   final Color color;
-  const _ChartSummary({required this.label, required this.value, required this.color});
+  const _ChartSummary(
+      {required this.label, required this.value, required this.color});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(
-            fontSize: 12, color: AppColors.textHint)),
-        Text(value, style: TextStyle(
-            fontSize: 22, fontWeight: FontWeight.bold, color: color)),
+        Text(label,
+            style: const TextStyle(
+                fontSize: 12, color: AppColors.textHint)),
+        Text(value,
+            style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: color)),
       ],
     );
   }

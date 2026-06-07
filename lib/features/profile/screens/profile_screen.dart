@@ -335,18 +335,23 @@ class _ProfileBody extends StatelessWidget {
             subtitle: '4-7-8, Box breathing, and more',
             onTap:    () => context.go(AppRoutes.meditation),
           ),
+          /*
           _MenuItem(
             icon:     Icons.psychology_rounded,
             label:    'AI Coach',
             subtitle: 'Chat with your personal trainer',
             onTap:    () => context.go(AppRoutes.aiCoach),
           ),
+
+
           _MenuItem(
             icon:     Icons.monitor_heart_rounded,
             label:    'Health Connect',
             subtitle: 'Sync wearables & Google Fit',
             onTap:    () => context.go(AppRoutes.healthConnect),
           ),
+
+           */
           _MenuItem(
             icon:     Icons.emoji_events_rounded,
             label:    'Leaderboard',
@@ -359,12 +364,15 @@ class _ProfileBody extends StatelessWidget {
             subtitle: 'Steps, water, calories, weight targets',
             onTap:    () => context.go(AppRoutes.goalsSettings),
           ),
+          /*
           _MenuItem(
             icon:     Icons.workspace_premium_rounded,
             label:    'Go Premium',
             subtitle: 'Unlock all features',
             onTap:    () => context.go(AppRoutes.premium),
           ),
+
+           */
           const SizedBox(height: 24),
 
           const SyncCard(),
