@@ -29,31 +29,56 @@ android {
     }
 
     kotlinOptions {
-        jvmTarget = "17"
+        jvmTarget = JavaVersion.VERSION_17.toString()
     }
 
     defaultConfig {
         applicationId = "com.siratalmustaqeem.healthfitlife"
-        minSdk = 26
+        minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        multiDexEnabled = true
+
+        // ✅ Global filter — strongest level
+        ndk {
+            abiFilters += listOf("arm64-v8a", "armeabi-v7a")
+        }
+
     }
 
     signingConfigs {
         create("release") {
             keyAlias = keystoreProperties["keyAlias"] as String
             keyPassword = keystoreProperties["keyPassword"] as String
-            storeFile = file(keystoreProperties["storeFile"] as String)
+            storeFile = keystoreProperties["storeFile"]?.let { file(it as String) }
             storePassword = keystoreProperties["storePassword"] as String
         }
     }
 
     buildTypes {
+        debug {
+            // flutter run → uses this block automatically
+            ndk {
+                abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86_64")
+            }
+        }
         release {
-            signingConfig = signingConfigs.getByName("release")
+            // flutter build appbundle → uses this block automatically
+            signingConfig = signingConfigs.getByName("release")  // ← signing
+            isShrinkResources = true                              // ← shrink
+            isMinifyEnabled = true                                // ← R8
+            proguardFiles(                                        // ← proguard
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            ndk {
+                debugSymbolLevel = "SYMBOL_TABLE"                 // ← symbols
+                abiFilters += listOf("arm64-v8a", "armeabi-v7a") // ← no x86_64
+            }
         }
     }
+
 }
 
 flutter {
