@@ -7,7 +7,7 @@ class WaterLog {
   Id id = Isar.autoIncrement;
 
   @Index()
-  late String uid;
+  String uid = '';
 
   late DateTime date;
   late int amountML;  // millilitres per drink (e.g., 250ml)

@@ -7,7 +7,7 @@ class StepEntry {
   Id id = Isar.autoIncrement;
 
   @Index()
-  late String uid;
+  String uid = '';
 
   late DateTime date;
   late int stepCount;

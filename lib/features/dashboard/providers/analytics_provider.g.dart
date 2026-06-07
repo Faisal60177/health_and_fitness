@@ -22,7 +22,7 @@ final activityHeatmapProvider =
 );
 
 typedef ActivityHeatmapRef = AutoDisposeFutureProviderRef<Map<DateTime, int>>;
-String _$analyticsNotifierHash() => r'3f8c1124c13abe67f84eae713a060ddf9ee64625';
+String _$analyticsNotifierHash() => r'120ba210320e7c0a5efeb82b303536e00e053ff4';
 
 /// See also [AnalyticsNotifier].
 @ProviderFor(AnalyticsNotifier)

@@ -9,7 +9,7 @@ class SleepLog {
   Id id = Isar.autoIncrement;
 
   @Index()
-  late String uid;
+  String uid = '';
 
   late DateTime date;           // the date this sleep ENDED (morning of)
   late DateTime bedTime;        // when user went to bed

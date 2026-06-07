@@ -64,9 +64,11 @@ Future<DashboardSummary> dashboardSummary(DashboardSummaryRef ref) async {
   final sleepLogs     = results[5] as List;
   final streak        = results[6] as int;
 
-  final weeklyWorkouts = await WorkoutRepository()
-      .getSessionsForDate(
-      DateTime.now().subtract(const Duration(days: 7)));
+  final allSessions = await WorkoutRepository().getAllSessions();
+  final weekStart = DateTime.now().subtract(const Duration(days: 7));
+  final weeklyWorkouts = allSessions
+      .where((s) => s.date.isAfter(weekStart))
+      .toList();
 
   return DashboardSummary(
     todaySteps:       stepEntry?.stepCount ?? 0,
@@ -86,15 +88,21 @@ Future<DashboardSummary> dashboardSummary(DashboardSummaryRef ref) async {
 
 Future<int> _calculateStreak() async {
   int streak = 0;
-  DateTime day = DateTime.now();
   final goals = await UserGoalsRepository().getGoals();
+  final stepLogs = await StepRepository().getRecentDays(365);
 
+  // Build a map of date → stepCount for fast lookup
+  final stepMap = <String, int>{};
+  for (final e in stepLogs) {
+    final key = '${e.date.year}-${e.date.month}-${e.date.day}';
+    stepMap[key] = e.stepCount;
+  }
+
+  DateTime day = DateTime.now();
   for (int i = 0; i < 365; i++) {
-    final check     = DateTime(day.year, day.month, day.day);
-    final steps     = await StepRepository().getTodayEntry();
-    // Use user's own goal threshold for streak calculation
-    final hasActivity =
-        (steps?.stepCount ?? 0) > (goals.dailyStepGoal * 0.5);
+    final key = '${day.year}-${day.month}-${day.day}';
+    final steps = stepMap[key] ?? 0;
+    final hasActivity = steps > (goals.dailyStepGoal * 0.5);
     if (!hasActivity && i > 0) break;
     if (hasActivity) streak++;
     day = day.subtract(const Duration(days: 1));

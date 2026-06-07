@@ -11,6 +11,8 @@ import '../../../data/repositories/user_profile_repository.dart';
 import 'package:health_and_fitness/features/sync/widgets/sync_card.dart';
 import 'package:health_and_fitness/features/sync/providers/sync_provider.dart';
 
+import '../../../data/repositories/weight_repository.dart';
+
 part 'profile_screen.g.dart';
 
 // ── Unified user data model ───────────────────────────────────
@@ -364,6 +366,12 @@ class _ProfileBody extends StatelessWidget {
             subtitle: 'Steps, water, calories, weight targets',
             onTap:    () => context.go(AppRoutes.goalsSettings),
           ),
+          _MenuItem(
+            icon:     Icons.monitor_weight_rounded,
+            label:    'Log weight',
+            subtitle: 'Track your weight over time',
+            onTap:    () => _showLogWeight(context),
+          ),
           /*
           _MenuItem(
             icon:     Icons.workspace_premium_rounded,
@@ -502,6 +510,54 @@ class _ProfileBody extends StatelessWidget {
       ),
     );
   }
+
+  void _showLogWeight(BuildContext context) {
+    final weightCtrl = TextEditingController();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.surfaceCard,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (ctx) => Padding(
+        padding: EdgeInsets.fromLTRB(
+            24, 24, 24, MediaQuery.of(ctx).viewInsets.bottom + 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Log weight',
+                style: Theme.of(ctx).textTheme.headlineMedium),
+            const SizedBox(height: 20),
+            _EditField(ctrl: weightCtrl, label: 'Weight (kg)', isNumber: true),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () async {
+                  final kg = double.tryParse(weightCtrl.text);
+                  if (kg == null || kg <= 0) return;
+                  await WeightRepository().logWeight(kg);
+                  if (ctx.mounted) Navigator.pop(ctx);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.black,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                ),
+                child: const Text('Save'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+
 
   Color _bmiColor(double bmi) {
     if (bmi < 18.5) return AppColors.warning;
@@ -674,6 +730,9 @@ class _MenuItem extends StatelessWidget {
     );
   }
 }
+
+
+
 
 class _EditField extends StatelessWidget {
   final TextEditingController ctrl;

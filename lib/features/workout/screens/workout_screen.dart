@@ -830,7 +830,10 @@ class _ActiveWorkoutScreenState
       ..id              = session.id
       ..name            = session.name
       ..date            = session.date
-      ..durationMinutes = _stopwatch.elapsed.inMinutes
+      ..durationMinutes = DateTime.now()
+          .difference(session.date)
+          .inMinutes
+          .clamp(1, 999)
       ..exercises       = session.exercises;
 
     await ref

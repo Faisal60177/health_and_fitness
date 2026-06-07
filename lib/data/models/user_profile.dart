@@ -9,7 +9,7 @@ class UserProfile {
   // This is the Firebase uid returned by FirebaseAuth.instance.currentUser.uid
   // Index it for fast lookup — we query by uid constantly
   @Index(unique: true)  // unique: true means one profile per uid
-  late String uid;
+  String uid = '';
 
   late String name;
   late String email;

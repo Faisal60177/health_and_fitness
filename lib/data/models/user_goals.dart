@@ -7,7 +7,7 @@ class UserGoals {
   Id id = Isar.autoIncrement;
 
   @Index(unique: true)
-  late String uid;
+  String uid = '';
 
   int dailyStepGoal       = 10000;    // default 10,000 steps/day
   int weeklyRunningKm     = 4;        // weekly running distance target

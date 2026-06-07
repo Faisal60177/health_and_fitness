@@ -7,7 +7,7 @@ class WeightLog {
   Id id = Isar.autoIncrement;
 
   @Index()
-  late String uid;
+  String uid = '';
 
   late DateTime date;
   late double weightKg;
