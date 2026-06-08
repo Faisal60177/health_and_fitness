@@ -42,7 +42,7 @@ Step Counter · Workouts · Nutrition · Sleep · BMI · Water Intake · Meditat
 ### 🧮 BMI & Calorie Calculator
 - BMI calculator with category classification
 - Daily calorie goal based on user profile
-- Offline profile storage using **Isar** local database
+- Offline profile storage using **ObjectBox** local database
 
 ### 🥗 Nutrition & Meal Tracking
 - Log meals with calorie and macro breakdown
@@ -77,13 +77,13 @@ This project follows **Clean Architecture** with **Riverpod** as the state manag
 ```
 lib/
 ├── app.dart                    # App entry, MaterialApp.router, theme
-├── main.dart                   # Firebase init, Isar init, foreground service
+├── main.dart                   # Firebase init, ObjectBox init, foreground service
 ├── core/
 │   ├── router/                 # GoRouter with appRouterProvider
 │   └── theme/                  # Light & dark AppTheme
 ├── data/
 │   ├── repositories/           # Auth, Step, and other repositories
-│   └── services/               # IsarService, NotificationService, StepForegroundService
+│   └── services/               # ObjectBoxService, NotificationService, StepForegroundService
 └── features/
     ├── steps/                  # Step counter feature
     ├── workout/                # Workout logger
@@ -97,7 +97,7 @@ lib/
 
 **State Management:** Riverpod (`flutter_riverpod`) with `riverpod_annotation` code generation  
 **Navigation:** GoRouter (`go_router`) with provider-driven routing  
-**Local DB:** Isar (fast NoSQL, code-generated schemas via `isar_generator`)  
+**Local DB:** ObjectBox (fast NoSQL, code-generated schemas via `objectbox_generator`)  
 **Remote DB:** Firebase Firestore  
 **Code Generation:** `build_runner`, `freezed`, `json_serializable`, `riverpod_generator`
 
@@ -110,7 +110,7 @@ lib/
 | **Framework** | Flutter 3.x / Dart 3.x |
 | **State Management** | Riverpod (with code generation) |
 | **Navigation** | GoRouter |
-| **Local Database** | Isar |
+| **Local Database** | ObjectBox |
 | **Remote Database** | Cloud Firestore |
 | **Authentication** | Firebase Auth, Google Sign-In |
 | **File Storage** | Firebase Storage |
@@ -177,7 +177,7 @@ flutter run
 
 ## 🧑‍💻 Developer Notes
 
-- **Isar** is initialized before `runApp()` to ensure the database is ready for all providers on first frame.
+- **ObjectBox** is initialized before `runApp()` to ensure the database is ready for all providers on first frame.
 - **Foreground service** for step tracking starts automatically if a user is already logged in, ensuring no steps are missed after app restart.
 - **Clean Architecture** separates data, domain, and feature layers — repositories handle all data access, keeping UI and providers free of direct database or Firebase calls.
 - **Theme** is controlled globally by `themeNotifierProvider` (Riverpod), supporting both light and dark mode with `MaterialApp.router`.
