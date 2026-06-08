@@ -16,7 +16,7 @@ import '../../../data/repositories/weight_repository.dart';
 part 'profile_screen.g.dart';
 
 // ── Unified user data model ───────────────────────────────────
-// Merges Firebase Auth + Firestore + Isar into one clean object
+// Merges Firebase Auth + Firestore + ObjectBox  into one clean object
 class UserData {
   final String name;
   final String email;
@@ -75,7 +75,7 @@ class UserData {
 // ── Provider: loads user data from all sources ────────────────
 // ✅ Replace the userData provider with this safe version
 @riverpod
-Future<UserData> userData(UserDataRef ref) async {
+Future<UserData> userData(Ref ref) async {
   final currentUser = FirebaseAuth.instance.currentUser;
   if (currentUser == null) {
     return const UserData(
@@ -101,10 +101,10 @@ Future<UserData> userData(UserDataRef ref) async {
         .get();
     if (doc.exists) firestoreData = doc.data();
   } catch (_) {
-    // Firestore unavailable — fall back to Isar
+    // Firestore unavailable — fall back to ObjectBox
   }
 
-  final isarProfile = await UserProfileRepository().getProfile();
+  final localProfile  = await UserProfileRepository().getProfile();
 
   return UserData(
     name: authName.isNotEmpty
@@ -116,23 +116,23 @@ Future<UserData> userData(UserDataRef ref) async {
     // ✅ FIX: Firestore stores numbers as int OR double
     // Using (num?) handles both safely
     age: (firestoreData?['age'] as num?)?.toInt()
-        ?? isarProfile?.age
+        ?? localProfile ?.age
         ?? 25,
 
     weightKg: (firestoreData?['weightKg'] as num?)?.toDouble()
-        ?? isarProfile?.weightKg
+        ?? localProfile ?.weightKg
         ?? 70.0,
 
     heightCm: (firestoreData?['heightCm'] as num?)?.toDouble()
-        ?? isarProfile?.heightCm
+        ?? localProfile ?.heightCm
         ?? 170.0,
 
     fitnessGoal: firestoreData?['fitnessGoal'] as String?
-        ?? isarProfile?.fitnessGoal
+        ?? localProfile ?.fitnessGoal
         ?? 'maintain',
 
     fitnessLevel: firestoreData?['fitnessLevel'] as String?
-        ?? isarProfile?.fitnessLevel
+        ?? localProfile ?.fitnessLevel
         ?? 'beginner',
   );
 }
@@ -480,7 +480,7 @@ class _ProfileBody extends StatelessWidget {
                     'updatedAt': FieldValue.serverTimestamp(),
                   });
 
-                  // Update Isar (local cache)
+                  // Update ObjectBox  (local cache)
                   final repo    = UserProfileRepository();
                   final profile = await repo.getProfile();
                   if (profile != null) {
@@ -774,3 +774,9 @@ class _EditField extends StatelessWidget {
     );
   }
 }
+
+
+
+
+
+

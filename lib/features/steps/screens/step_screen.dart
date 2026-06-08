@@ -10,7 +10,7 @@ class StepScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final step = ref.watch(stepNotifierProvider);
+    final step = ref.watch(stepProvider);
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -236,7 +236,7 @@ class StepScreen extends ConsumerWidget {
                 width: double.infinity,
                 child: OutlinedButton.icon(
                   onPressed: () => ref
-                      .read(stepNotifierProvider.notifier)
+                      .read(stepProvider.notifier)
                       .addTestSteps(500),
                   icon: const Icon(Icons.add_rounded,
                       color: AppColors.primary),
@@ -403,3 +403,7 @@ class _StatPill extends StatelessWidget {
     );
   }
 }
+
+
+
+

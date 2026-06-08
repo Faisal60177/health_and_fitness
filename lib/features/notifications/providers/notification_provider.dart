@@ -121,3 +121,6 @@ class NotificationNotifier extends _$NotificationNotifier {
 
   String _planName() => 'scheduled'; // Phase 6: reads active plan name
 }
+
+
+

@@ -9,7 +9,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final settings = ref.watch(notificationNotifierProvider);
+    final settings = ref.watch(notificationProvider);
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -37,7 +37,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
             subtitle: 'Daily at ${_fmt(settings.workoutHour, settings.workoutMinute)}',
             value: settings.workoutReminder,
             onChanged: (v) => ref
-                .read(notificationNotifierProvider.notifier)
+                .read(notificationProvider.notifier)
                 .toggleWorkout(v),
             onTimeTap: settings.workoutReminder
                 ? () => _pickTime(
@@ -47,7 +47,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
                   hour: settings.workoutHour,
                   minute: settings.workoutMinute),
               onPicked: (t) => ref
-                  .read(notificationNotifierProvider.notifier)
+                  .read(notificationProvider.notifier)
                   .setWorkoutTime(t.hour, t.minute),
             )
                 : null,
@@ -60,7 +60,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
             subtitle: 'Daily at ${_fmt(settings.waterHour, 0)}',
             value: settings.waterReminder,
             onChanged: (v) => ref
-                .read(notificationNotifierProvider.notifier)
+                .read(notificationProvider.notifier)
                 .toggleWater(v),
           ),
 
@@ -71,7 +71,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
             subtitle: 'Daily at ${_fmt(settings.sleepHour, 0)}',
             value: settings.sleepReminder,
             onChanged: (v) => ref
-                .read(notificationNotifierProvider.notifier)
+                .read(notificationProvider.notifier)
                 .toggleSleep(v),
           ),
 
@@ -82,7 +82,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
             subtitle: 'Daily at 12:00 PM',
             value: settings.mealReminder,
             onChanged: (v) => ref
-                .read(notificationNotifierProvider.notifier)
+                .read(notificationProvider.notifier)
                 .toggleMeal(v),
           ),
 
@@ -228,3 +228,7 @@ class _NotificationTile extends StatelessWidget {
     );
   }
 }
+
+
+
+

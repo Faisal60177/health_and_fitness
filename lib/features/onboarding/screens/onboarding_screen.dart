@@ -57,7 +57,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     setState(() => _isSaving = true);
 
     try {
-      final data        = ref.read(onboardingNotifierProvider);
+      final data        = ref.read(onboardingProvider);
       final currentUser = FirebaseAuth.instance.currentUser;
 
       final realName  = currentUser?.displayName ?? '';
@@ -119,7 +119,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final data = ref.watch(onboardingNotifierProvider);
+    final data = ref.watch(onboardingProvider);
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -185,28 +185,28 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   _AgeStep(
                     age: data.age,
                     onChanged: (v) =>
-                        ref.read(onboardingNotifierProvider.notifier).setAge(v),
+                        ref.read(onboardingProvider.notifier).setAge(v),
                   ),
                   _BodyStep(
                     weightKg: data.weightKg,
                     heightCm: data.heightCm,
                     onWeightChanged: (v) => ref
-                        .read(onboardingNotifierProvider.notifier)
+                        .read(onboardingProvider.notifier)
                         .setWeight(v),
                     onHeightChanged: (v) => ref
-                        .read(onboardingNotifierProvider.notifier)
+                        .read(onboardingProvider.notifier)
                         .setHeight(v),
                   ),
                   _GoalStep(
                     selected: data.fitnessGoal,
                     onSelected: (v) => ref
-                        .read(onboardingNotifierProvider.notifier)
+                        .read(onboardingProvider.notifier)
                         .setGoal(v),
                   ),
                   _LevelStep(
                     selected: data.fitnessLevel,
                     onSelected: (v) => ref
-                        .read(onboardingNotifierProvider.notifier)
+                        .read(onboardingProvider.notifier)
                         .setLevel(v),
                   ),
                 ],
@@ -613,3 +613,6 @@ class _SelectableCard extends StatelessWidget {
     );
   }
 }
+
+
+

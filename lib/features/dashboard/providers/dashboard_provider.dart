@@ -43,7 +43,7 @@ class DashboardSummary {
 }
 
 @riverpod
-Future<DashboardSummary> dashboardSummary(DashboardSummaryRef ref) async {
+Future<DashboardSummary> dashboardSummary(Ref ref) async {
   // Load user's custom goals FIRST — everything else uses them
   final goals = await UserGoalsRepository().getGoals();
 
@@ -109,3 +109,8 @@ Future<int> _calculateStreak() async {
   }
   return streak;
 }
+
+
+
+
+

@@ -1,49 +1,43 @@
-import 'package:isar/isar.dart';
+import 'package:health_and_fitness/objectbox.g.dart';
+import 'package:objectbox/objectbox.dart';
 import '../models/weight_log.dart';
-import '../services/isar_service.dart';
+import '../services/objectbox_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class WeightRepository {
-  final _db = IsarService.db;
-  // Single helper — gets current uid once, used by all methods
+  Box<WeightLog> get _box => ObjectBoxService.weightLogs;
+
   String get _uid =>
       FirebaseAuth.instance.currentUser?.uid ?? 'anonymous';
 
   Future<void> logWeight(double kg, {String notes = ''}) async {
-    final log = WeightLog()
-      ..uid       = _uid          // ← stamp uid on new records
-      ..date = DateTime.now()
+    _box.put(WeightLog()
+      ..uid      = _uid
+      ..date     = DateTime.now()
       ..weightKg = kg
-      ..notes = notes;
-
-    await _db.writeTxn(() async {
-      await _db.weightLogs.put(log);
-    });
+      ..notes    = notes);
   }
 
-  // Most recent weight entry
   Future<WeightLog?> getLatest() async {
-    return _db.weightLogs
-        .filter()
-        .uidEqualTo(_uid)              // ← add uid filter
-        .sortByDateDesc()
-        .findFirst();
+    final query = _box.query(WeightLog_.uid.equals(_uid))
+      ..order(WeightLog_.date, flags: Order.descending);
+    return query.build().findFirst();
   }
 
-  // All entries sorted newest first — for history list + chart
   Future<List<WeightLog>> getHistory() async {
-    return _db.weightLogs
-        .filter()
-        .uidEqualTo(_uid)              // ← add uid filter
-        .sortByDateDesc()
-        .findAll();
+    final query = _box.query(WeightLog_.uid.equals(_uid))
+      ..order(WeightLog_.date, flags: Order.descending);
+    return query.build().find();
   }
 
   Stream<List<WeightLog>> watchHistory() {
-    return _db.weightLogs
-        .filter()
-        .uidEqualTo(_uid)              // ← add uid filter
-        .sortByDateDesc()
-        .watch(fireImmediately: true);
+    final query = _box.query(WeightLog_.uid.equals(_uid))
+      ..order(WeightLog_.date, flags: Order.descending);
+    return query.watch(triggerImmediately: true)
+        .map((q) => q.find());
   }
 }
+
+
+
+

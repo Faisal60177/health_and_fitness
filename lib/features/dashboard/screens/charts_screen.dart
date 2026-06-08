@@ -11,7 +11,7 @@ import '../../../data/models/user_goals.dart';
 part 'charts_screen.g.dart';
 
 @riverpod
-Future<UserGoals> userGoals(UserGoalsRef ref) async {
+Future<UserGoals> userGoals(Ref ref) async {
   return UserGoalsRepository().getGoals();
 }
 
@@ -40,7 +40,7 @@ class _ChartsScreenState extends ConsumerState<ChartsScreen>
 
   @override
   Widget build(BuildContext context) {
-    final analyticsAsync = ref.watch(analyticsNotifierProvider);
+    final analyticsAsync = ref.watch(analyticsProvider);
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -57,7 +57,7 @@ class _ChartsScreenState extends ConsumerState<ChartsScreen>
               child: _RangeToggle(
                 currentRange: data.range,
                 onChanged: (r) => ref
-                    .read(analyticsNotifierProvider.notifier)
+                    .read(analyticsProvider.notifier)
                     .setRange(r),
               ),
             ),
@@ -869,3 +869,8 @@ class _EmptyChart extends StatelessWidget {
     );
   }
 }
+
+
+
+
+

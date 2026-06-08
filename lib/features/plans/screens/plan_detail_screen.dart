@@ -20,7 +20,7 @@ class PlanDetailScreen extends ConsumerWidget {
           TextButton(
             onPressed: () async {
               await ref
-                  .read(workoutPlanNotifierProvider.notifier)
+                  .read(workoutPlanProvider.notifier)
                   .startPlan(plan);
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -192,3 +192,7 @@ class _DayCard extends StatelessWidget {
     );
   }
 }
+
+
+
+

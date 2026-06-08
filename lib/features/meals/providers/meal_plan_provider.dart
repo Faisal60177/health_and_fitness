@@ -7,7 +7,7 @@ part 'meal_plan_provider.g.dart';
 // ── Repository provider ───────────────────────────────────
 // Singleton so all meal providers share the same instance
 @riverpod
-MealRepository mealRepository(MealRepositoryRef ref) {
+MealRepository mealRepository(Ref ref) {
   return MealRepository();
 }
 
@@ -40,9 +40,9 @@ class MealPlanNotifier extends _$MealPlanNotifier {
 // Separate provider so only the active-plan banner rebuilds
 // when the active plan changes — not the whole plans list
 @riverpod
-Future<MealPlan?> activeMealPlan(ActiveMealPlanRef ref) async {
+Future<MealPlan?> activeMealPlan(Ref ref) async {
   // Watch the notifier so this re-runs when plans change
-  ref.watch(mealPlanNotifierProvider);
+  ref.watch(mealPlanProvider);
   return ref.read(mealRepositoryProvider).getActivePlan();
 }
 
@@ -92,8 +92,13 @@ class RecipeNotifier extends _$RecipeNotifier {
 // Used by the plan detail screen to show the recipe list
 @riverpod
 Future<List<Recipe>> recipesForPlan(
-    RecipesForPlanRef ref,
+    Ref ref,
     MealPlan plan,
     ) async {
   return ref.read(mealRepositoryProvider).getRecipesForPlan(plan);
 }
+
+
+
+
+

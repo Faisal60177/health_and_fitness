@@ -22,6 +22,11 @@ class WeightNotifier extends _$WeightNotifier {
 
 // Separate provider for the latest weight — used in home dashboard
 @riverpod
-Future<WeightLog?> latestWeight(LatestWeightRef ref) async {
+Future<WeightLog?> latestWeight(Ref ref) async {
   return WeightRepository().getLatest();
 }
+
+
+
+
+

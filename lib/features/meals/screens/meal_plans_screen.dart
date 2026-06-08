@@ -81,19 +81,19 @@ class _MealPlansScreenState extends ConsumerState<MealPlansScreen>
             onTagSelected: (tag) {
               setState(() => _selectedTag = tag);
               if (tag == 'All') {
-                ref.read(recipeNotifierProvider.notifier).reset();
+                ref.read(recipeProvider.notifier).reset();
               } else {
                 ref
-                    .read(recipeNotifierProvider.notifier)
+                    .read(recipeProvider.notifier)
                     .filterByTag(tag);
               }
             },
             onSearch: (q) {
-              ref.read(recipeNotifierProvider.notifier).search(q);
+              ref.read(recipeProvider.notifier).search(q);
             },
             onClearSearch: () {
               _searchController.clear();
-              ref.read(recipeNotifierProvider.notifier).reset();
+              ref.read(recipeProvider.notifier).reset();
             },
           ),
         ],
@@ -108,7 +108,7 @@ class _MealPlansScreenState extends ConsumerState<MealPlansScreen>
 class _PlansTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final plansAsync      = ref.watch(mealPlanNotifierProvider);
+    final plansAsync      = ref.watch(mealPlanProvider);
     final activePlanAsync = ref.watch(activeMealPlanProvider);
 
     return plansAsync.when(
@@ -188,7 +188,7 @@ class _RecipesTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final recipesAsync = ref.watch(recipeNotifierProvider);
+    final recipesAsync = ref.watch(recipeProvider);
 
     return Column(
       children: [
@@ -339,7 +339,7 @@ class _ActivePlanBanner extends StatelessWidget {
               // Deactivate button
               GestureDetector(
                 onTap: () => ref
-                    .read(mealPlanNotifierProvider.notifier)
+                    .read(mealPlanProvider.notifier)
                     .deactivatePlan(plan.id),
                 child: const Text(
                   'Stop plan',
@@ -486,10 +486,10 @@ class _MealPlanCard extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: plan.isActive
                     ? () => ref
-                    .read(mealPlanNotifierProvider.notifier)
+                    .read(mealPlanProvider.notifier)
                     .deactivatePlan(plan.id)
                     : () => ref
-                    .read(mealPlanNotifierProvider.notifier)
+                    .read(mealPlanProvider.notifier)
                     .activatePlan(plan.id),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: plan.isActive
@@ -706,3 +706,7 @@ IconData _goalIcon(String goal) {
     default:             return Icons.restaurant_rounded;
   }
 }
+
+
+
+

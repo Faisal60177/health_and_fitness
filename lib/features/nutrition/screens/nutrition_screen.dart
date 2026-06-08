@@ -11,7 +11,7 @@ class NutritionScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final nutritionAsync = ref.watch(calorieNotifierProvider);
+    final nutritionAsync = ref.watch(calorieProvider);
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -225,7 +225,7 @@ class NutritionScreen extends ConsumerWidget {
                       ..mealType = selectedMeal;
 
                     ref
-                        .read(calorieNotifierProvider.notifier)
+                        .read(calorieProvider.notifier)
                         .logFood(entry);
                     Navigator.pop(ctx);
                   },
@@ -434,7 +434,7 @@ class _FoodLogRow extends StatelessWidget {
       key: Key(log.id.toString()),
       direction: DismissDirection.endToStart,
       onDismissed: (_) =>
-          ref.read(calorieNotifierProvider.notifier).deleteLog(log.id),
+          ref.read(calorieProvider.notifier).deleteLog(log.id),
       background: Container(
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 16),
@@ -510,3 +510,8 @@ class _InputField extends StatelessWidget {
     );
   }
 }
+
+
+
+
+

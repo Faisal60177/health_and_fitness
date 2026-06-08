@@ -6,36 +6,90 @@ part of 'workout_plan_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$activePlanHash() => r'f0e0f11d6b1437559f7d04de7a9a37e5361a39bc';
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
 
-/// See also [activePlan].
-@ProviderFor(activePlan)
-final activePlanProvider = AutoDisposeFutureProvider<WorkoutPlan?>.internal(
-  activePlan,
-  name: r'activePlanProvider',
-  debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$activePlanHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+@ProviderFor(WorkoutPlanNotifier)
+final workoutPlanProvider = WorkoutPlanNotifierProvider._();
 
-typedef ActivePlanRef = AutoDisposeFutureProviderRef<WorkoutPlan?>;
+final class WorkoutPlanNotifierProvider
+    extends $AsyncNotifierProvider<WorkoutPlanNotifier, List<WorkoutPlan>> {
+  WorkoutPlanNotifierProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'workoutPlanProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$workoutPlanNotifierHash();
+
+  @$internal
+  @override
+  WorkoutPlanNotifier create() => WorkoutPlanNotifier();
+}
+
 String _$workoutPlanNotifierHash() =>
     r'beadcf05bc41f092e59b75adf93de87deab65486';
 
-/// See also [WorkoutPlanNotifier].
-@ProviderFor(WorkoutPlanNotifier)
-final workoutPlanNotifierProvider = AutoDisposeAsyncNotifierProvider<
-    WorkoutPlanNotifier, List<WorkoutPlan>>.internal(
-  WorkoutPlanNotifier.new,
-  name: r'workoutPlanNotifierProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$workoutPlanNotifierHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+abstract class _$WorkoutPlanNotifier extends $AsyncNotifier<List<WorkoutPlan>> {
+  FutureOr<List<WorkoutPlan>> build();
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    final ref =
+        this.ref as $Ref<AsyncValue<List<WorkoutPlan>>, List<WorkoutPlan>>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<List<WorkoutPlan>>, List<WorkoutPlan>>,
+              AsyncValue<List<WorkoutPlan>>,
+              Object?,
+              Object?
+            >;
+    element.handleCreate(ref, build);
+  }
+}
 
-typedef _$WorkoutPlanNotifier = AutoDisposeAsyncNotifier<List<WorkoutPlan>>;
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member
+@ProviderFor(activePlan)
+final activePlanProvider = ActivePlanProvider._();
+
+final class ActivePlanProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<WorkoutPlan?>,
+          WorkoutPlan?,
+          FutureOr<WorkoutPlan?>
+        >
+    with $FutureModifier<WorkoutPlan?>, $FutureProvider<WorkoutPlan?> {
+  ActivePlanProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'activePlanProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$activePlanHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<WorkoutPlan?> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<WorkoutPlan?> create(Ref ref) {
+    return activePlan(ref);
+  }
+}
+
+String _$activePlanHash() => r'd3550526f65e8c91ec2839a41d14b51dfd996a4e';

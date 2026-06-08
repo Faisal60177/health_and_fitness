@@ -1,76 +1,68 @@
-import 'package:isar/isar.dart';
+import 'package:health_and_fitness/objectbox.g.dart';
+import 'package:objectbox/objectbox.dart';
 import '../models/step_entry.dart';
-import '../services/isar_service.dart';
+import '../services/objectbox_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class StepRepository {
-  final _db = IsarService.db;
+  Box<StepEntry> get _box => ObjectBoxService.stepEntries;
 
-  // Single helper — gets current uid once, used by all methods
   String get _uid =>
       FirebaseAuth.instance.currentUser?.uid ?? 'anonymous';
 
-  // Upsert today's step count
-  // Called by the pedometer provider whenever step count updates
   Future<void> saveTodaySteps(int steps) async {
     final today = _todayMidnight();
+    final existing = _box.query(
+      StepEntry_.uid.equals(_uid)
+          .and(StepEntry_.date.equals(today.millisecondsSinceEpoch)),
+    ).build().findFirst();
 
-    await _db.writeTxn(() async {
-      // Find existing entry FOR THIS USER on today's date
-      final existing = await _db.stepEntrys
-          .filter()
-          .uidEqualTo(_uid)          // ← filter by uid
-          .dateEqualTo(today)
-          .findFirst();
-
-      if (existing != null) {
-        // Update existing entry
-        existing.stepCount = steps;
-        await _db.stepEntrys.put(existing);
-      } else {
-        // Create new entry for today
-        final entry = StepEntry()
-          ..uid       = _uid          // ← stamp uid on new records
-          ..date = today
-          ..stepCount = steps
-          ..dailyGoal = 10000;
-        await _db.stepEntrys.put(entry);
-      }
-    });
+    if (existing != null) {
+      existing.stepCount = steps;
+      _box.put(existing);
+    } else {
+      _box.put(StepEntry()
+        ..uid       = _uid
+        ..date      = today
+        ..stepCount = steps
+        ..dailyGoal = 10000);
+    }
   }
 
-  // Get today's entry — null if no steps logged yet today
   Future<StepEntry?> getTodayEntry() async {
-    return _db.stepEntrys
-        .filter()
-        .uidEqualTo(_uid)          // ← filter by uid
-        .dateEqualTo(_todayMidnight())
-        .findFirst();
+    return _box.query(
+      StepEntry_.uid.equals(_uid)
+          .and(StepEntry_.date.equals(
+          _todayMidnight().millisecondsSinceEpoch)),
+    ).build().findFirst();
   }
 
-  // Get last N days for the weekly chart (Phase 4)
   Future<List<StepEntry>> getRecentDays(int days) async {
-    final from = DateTime.now().subtract(Duration(days: days));
-    return _db.stepEntrys
-        .filter()
-        .uidEqualTo(_uid)          // ← filter by uid
-        .dateGreaterThan(from)
-        .sortByDate()
-        .findAll();
+    final from = DateTime.now()
+        .subtract(Duration(days: days))
+        .millisecondsSinceEpoch;
+    final query = _box.query(
+      StepEntry_.uid.equals(_uid)
+          .and(StepEntry_.date.greaterThan(from)),
+    )..order(StepEntry_.date);
+    return query.build().find();
   }
 
   Stream<StepEntry?> watchToday() {
-    return _db.stepEntrys
-        .filter()
-        .uidEqualTo(_uid)          // ← filter by uid
-        .dateEqualTo(_todayMidnight())
-        .watch(fireImmediately: true)
-        .map((list) => list.isEmpty ? null : list.first);
+    return _box.query(
+      StepEntry_.uid.equals(_uid)
+          .and(StepEntry_.date.equals(
+          _todayMidnight().millisecondsSinceEpoch)),
+    ).watch(triggerImmediately: true)
+        .map((q) => q.findFirst());
   }
 
-  // Helper — strips hours/minutes so date comparison works correctly
   DateTime _todayMidnight() {
     final now = DateTime.now();
     return DateTime(now.year, now.month, now.day);
   }
 }
+
+
+
+

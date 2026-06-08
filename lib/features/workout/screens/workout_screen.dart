@@ -19,7 +19,7 @@ class WorkoutScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final sessionsAsync  = ref.watch(workoutNotifierProvider);
+    final sessionsAsync  = ref.watch(workoutProvider);
     final activeWorkout  = ref.watch(activeWorkoutProvider);
     final activePlanAsync = ref.watch(activePlanProvider);
 
@@ -146,7 +146,7 @@ class WorkoutScreen extends ConsumerWidget {
                             size: 22),
                       ),
                       onDismissed: (_) => ref
-                          .read(workoutNotifierProvider
+                          .read(workoutProvider
                           .notifier)
                           .deleteSession(sessions[i].id),
                       child: _SessionCard(
@@ -837,7 +837,7 @@ class _ActiveWorkoutScreenState
       ..exercises       = session.exercises;
 
     await ref
-        .read(workoutNotifierProvider.notifier)
+        .read(workoutProvider.notifier)
         .addSession(finalSession);
 
     ref.read(activeWorkoutProvider.notifier).clear();
@@ -1349,3 +1349,7 @@ class _RestTimerDialogState extends State<_RestTimerDialog> {
     );
   }
 }
+
+
+
+

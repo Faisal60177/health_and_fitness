@@ -6,21 +6,44 @@ part of 'dashboard_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$dashboardSummaryHash() => r'aadf40e1d777a03b6f8373b5ada0e9b9fac0ad29';
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
 
-/// See also [dashboardSummary].
 @ProviderFor(dashboardSummary)
-final dashboardSummaryProvider =
-    AutoDisposeFutureProvider<DashboardSummary>.internal(
-  dashboardSummary,
-  name: r'dashboardSummaryProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$dashboardSummaryHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+final dashboardSummaryProvider = DashboardSummaryProvider._();
 
-typedef DashboardSummaryRef = AutoDisposeFutureProviderRef<DashboardSummary>;
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member
+final class DashboardSummaryProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<DashboardSummary>,
+          DashboardSummary,
+          FutureOr<DashboardSummary>
+        >
+    with $FutureModifier<DashboardSummary>, $FutureProvider<DashboardSummary> {
+  DashboardSummaryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'dashboardSummaryProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$dashboardSummaryHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<DashboardSummary> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<DashboardSummary> create(Ref ref) {
+    return dashboardSummary(ref);
+  }
+}
+
+String _$dashboardSummaryHash() => r'879fdf800c944e89780b56c7fe9a95e68d9e8a10';

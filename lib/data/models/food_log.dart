@@ -1,22 +1,16 @@
-import 'package:isar/isar.dart';
+import 'package:objectbox/objectbox.dart';
 
-part 'food_log.g.dart';
 
-enum MealType {
-  breakfast,
-  lunch,
-  dinner,
-  snack,
-}
+enum MealType { breakfast, lunch, dinner, snack }
 
-@collection
+@Entity()
 class FoodLog {
-  Id id = Isar.autoIncrement;
+  int id = 0;
 
-  // FIX: was 'late String uid'
   @Index()
   String uid = '';
 
+  @Property(type: PropertyType.date)
   late DateTime date;
   late String foodName;
   late double calories;
@@ -24,10 +18,16 @@ class FoodLog {
   late double carbsG;
   late double fatG;
   late double servingSize;
-  @enumerated
-  late MealType mealType;
+  late int mealTypeIndex; // store enum as int
+
+  MealType get mealType => MealType.values[mealTypeIndex];
+  set mealType(MealType v) => mealTypeIndex = v.index;
 
   double get proteinCalories => proteinG * 4;
   double get carbCalories    => carbsG   * 4;
   double get fatCalories     => fatG     * 9;
 }
+
+
+
+

@@ -1,28 +1,26 @@
-import 'package:isar/isar.dart';
-part 'user_profile.g.dart';
+import 'package:objectbox/objectbox.dart';
 
-@collection
+
+@Entity()
 class UserProfile {
-  Id id = Isar.autoIncrement;
+  int id = 0;
 
-  // THE KEY ADDITION — links this profile to a Firebase user
-  // This is the Firebase uid returned by FirebaseAuth.instance.currentUser.uid
-  // Index it for fast lookup — we query by uid constantly
-  @Index(unique: true)  // unique: true means one profile per uid
+  @Unique()
   String uid = '';
 
-  late String name;
-  late String email;
-  late int age;
-  late double weightKg;
-  late double heightCm;
-  late String fitnessGoal;
-  late String fitnessLevel;
+  late String   name;
+  late String   email;
+  late int      age;
+  late double   weightKg;
+  late double   heightCm;
+  late String   fitnessGoal;
+  late String   fitnessLevel;
+  @Property(type: PropertyType.date)
   late DateTime createdAt;
 
   double get bmi {
-    final heightM = heightCm / 100;
-    return weightKg / (heightM * heightM);
+    final h = heightCm / 100;
+    return weightKg / (h * h);
   }
 
   String get bmiCategory {
@@ -32,3 +30,7 @@ class UserProfile {
     return 'Obese';
   }
 }
+
+
+
+

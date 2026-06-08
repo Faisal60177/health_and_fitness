@@ -1,63 +1,94 @@
-import 'package:isar/isar.dart';
+import 'dart:convert';
+import 'package:objectbox/objectbox.dart';
 
-part 'meal_plan.g.dart';
 
-@embedded
+// Not an @Entity — stored as JSON inside Recipe
 class RecipeIngredient {
-  late String name;
-  late double amount;
-  late String unit;
+  String name   = '';
+  double amount = 0;
+  String unit   = '';
+
   RecipeIngredient();
+
+  Map<String, dynamic> toJson() =>
+      {'name': name, 'amount': amount, 'unit': unit};
+
+  factory RecipeIngredient.fromJson(Map<String, dynamic> j) =>
+      RecipeIngredient()
+        ..name   = j['name']   as String? ?? ''
+        ..amount = (j['amount'] as num?)?.toDouble() ?? 0
+        ..unit   = j['unit']   as String? ?? '';
 }
 
-@collection
+@Entity()
 class Recipe {
-  Id id = Isar.autoIncrement;
+  int id = 0;
 
-  // FIX: was 'late String uid' — templates seeded without uid set
-  // caused LateInitializationError on first read
   @Index()
   String uid = '';
 
   late String name;
   late String description;
   late String category;
-  late int prepMinutes;
-  late int cookMinutes;
-  late int servings;
+  late int    prepMinutes;
+  late int    cookMinutes;
+  late int    servings;
   late double caloriesPerServing;
   late double proteinG;
   late double carbsG;
   late double fatG;
-  late List<RecipeIngredient> ingredients;
-  late List<String> instructions;
-  String imageUrl = '';
-  List<String> tags = [];
+  String imageUrl  = '';
+  String tagsJson = '[]';
+  String ingredientsJson   = '[]';
+  String instructionsJson  = '[]';
 
-  Recipe() {
-    ingredients  = [];
-    instructions = [];
+  List<String> get tags =>
+      (jsonDecode(tagsJson) as List).cast<String>();
+  set tags(List<String> v) =>
+      tagsJson = jsonEncode(v);
+
+  List<RecipeIngredient> get ingredients {
+    final list = jsonDecode(ingredientsJson) as List;
+    return list
+        .map((e) => RecipeIngredient.fromJson(e as Map<String, dynamic>))
+        .toList();
   }
+  set ingredients(List<RecipeIngredient> v) =>
+      ingredientsJson = jsonEncode(v.map((e) => e.toJson()).toList());
+
+  List<String> get instructions =>
+      (jsonDecode(instructionsJson) as List).cast<String>();
+  set instructions(List<String> v) =>
+      instructionsJson = jsonEncode(v);
 
   String get totalTime => '${prepMinutes + cookMinutes} min';
 }
 
-@collection
+@Entity()
 class MealPlan {
-  Id id = Isar.autoIncrement;
+  int id = 0;
 
-  // FIX: same issue
   @Index()
   String uid = '';
 
-  late String name;
-  late String description;
-  late String goal;
-  late int dailyCalorieTarget;
-  late int durationDays;
-  late List<String> recipeIds;
+  late String   name;
+  late String   description;
+  late String   goal;
+  late int      dailyCalorieTarget;
+  late int      durationDays;
+  @Property(type: PropertyType.date)
   late DateTime createdAt;
   bool isActive = false;
 
-  MealPlan() { recipeIds = []; }
+  String recipeIdsJson = '[]';
+
+  List<String> get recipeIds =>
+      (jsonDecode(recipeIdsJson) as List).cast<String>();
+  set recipeIds(List<String> v) =>
+      recipeIdsJson = jsonEncode(v);
 }
+
+
+
+
+

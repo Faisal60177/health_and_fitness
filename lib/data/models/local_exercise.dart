@@ -1,6 +1,3 @@
-// No Isar, no API. Pure in-memory exercise data.
-// Add real images/API later by swapping LocalExercise.gifUrl.
-
 class LocalExercise {
   final String id;
   final String name;
@@ -23,3 +20,7 @@ class LocalExercise {
     this.gifUrl = '',
   });
 }
+
+
+
+

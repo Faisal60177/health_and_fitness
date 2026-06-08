@@ -36,7 +36,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
   Future<void> _handleSignup() async {
     if (!_formKey.currentState!.validate()) return;
 
-    await ref.read(authNotifierProvider.notifier).signUp(
+    await ref.read(authProvider.notifier).signUp(
       _emailController.text.trim(),
       _passwordController.text,
       _nameController.text.trim(),
@@ -56,7 +56,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final authState = ref.watch(authNotifierProvider);
+    final authState = ref.watch(authProvider);
     final isLoading = authState.isLoading;
 
     return Scaffold(
@@ -248,3 +248,6 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     );
   }
 }
+
+
+

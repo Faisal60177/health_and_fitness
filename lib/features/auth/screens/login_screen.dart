@@ -31,7 +31,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Future<void> _handleLogin() async {
     if (!_formKey.currentState!.validate()) return;
 
-    await ref.read(authNotifierProvider.notifier).login(
+    await ref.read(authProvider.notifier).login(
       _emailController.text.trim(),
       _passwordController.text,
     );
@@ -44,7 +44,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   Future<void> _handleGoogleSignIn() async {
-    await ref.read(authNotifierProvider.notifier).signInWithGoogle();
+    await ref.read(authProvider.notifier).signInWithGoogle();
 
     // ← ADD THIS after Google login
     final user = FirebaseAuth.instance.currentUser;
@@ -62,7 +62,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final authState = ref.watch(authNotifierProvider);
+    final authState = ref.watch(authProvider);
     final isLoading = authState.isLoading;
 
     // Check if the error message suggests using Google
@@ -322,3 +322,6 @@ class _ErrorBanner extends StatelessWidget {
     );
   }
 }
+
+
+

@@ -47,7 +47,7 @@ class PremiumScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final productsAsync = ref.watch(premiumNotifierProvider);
+    final productsAsync = ref.watch(premiumProvider);
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -58,7 +58,7 @@ class PremiumScreen extends ConsumerWidget {
         actions: [
           TextButton(
             onPressed: () =>
-                ref.read(premiumNotifierProvider.notifier).restore(),
+                ref.read(premiumProvider.notifier).restore(),
             child: const Text('Restore',
                 style: TextStyle(color: AppColors.textHint)),
           ),
@@ -128,7 +128,7 @@ class PremiumScreen extends ConsumerWidget {
                     .map((p) => _ProductCard(
                   product: p,
                   onTap: () => ref
-                      .read(premiumNotifierProvider.notifier)
+                      .read(premiumProvider.notifier)
                       .purchase(p),
                 ))
                     .toList(),
@@ -316,3 +316,7 @@ class _FallbackPricingCard extends StatelessWidget {
     );
   }
 }
+
+
+
+

@@ -9,10 +9,10 @@ import 'package:health_and_fitness/data/services/step_foreground_service.dart';
 part 'auth_provider.g.dart';
 
 @riverpod
-AuthRepository authRepository(AuthRepositoryRef ref) => AuthRepository();
+AuthRepository authRepository(Ref ref) => AuthRepository();
 
 @riverpod
-Stream<User?> authState(AuthStateRef ref) =>
+Stream<User?> authState(Ref ref) =>
     ref.watch(authRepositoryProvider).authStateChanges;
 
 @riverpod
@@ -114,3 +114,9 @@ class AuthNotifier extends _$AuthNotifier {
     }
   }
 }
+
+
+
+
+
+

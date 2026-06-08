@@ -32,3 +32,6 @@ class ThemeNotifier extends _$ThemeNotifier {
     setTheme(state == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark);
   }
 }
+
+
+

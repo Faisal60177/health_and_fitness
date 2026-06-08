@@ -1,3 +1,4 @@
+import 'package:health_and_fitness/objectbox.g.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import '../services/secure_storage_service.dart';
@@ -260,3 +261,7 @@ class AuthRepository {
     }
   }
 }
+
+
+
+

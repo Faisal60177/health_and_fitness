@@ -9,7 +9,7 @@ import '../../home/providers/step_provider.dart';
 part 'step_goal_screen.g.dart';
 
 @riverpod
-Future<UserGoals> userGoals(UserGoalsRef ref) async {
+Future<UserGoals> userGoals(Ref ref) async {
   return UserGoalsRepository().getGoals();
 }
 
@@ -279,7 +279,7 @@ class _StepGoalScreenState extends ConsumerState<StepGoalScreen> {
     await repo.saveGoals(goals);
 
     // Update the live step provider with the new goal immediately
-    ref.read(stepNotifierProvider.notifier).updateDailyGoal(
+    ref.read(stepProvider.notifier).updateDailyGoal(
         _dailyStepGoal);
 
     if (mounted) {
@@ -347,3 +347,8 @@ class _GoalSection extends StatelessWidget {
     );
   }
 }
+
+
+
+
+

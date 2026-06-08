@@ -203,9 +203,9 @@ class _GoalsSettingsScreenState
     await repo.saveGoals(goals);
 
     // Invalidate all providers so they reload with new goals
-    ref.invalidate(stepNotifierProvider);
-    ref.invalidate(waterNotifierProvider);
-    ref.invalidate(calorieNotifierProvider);
+    ref.invalidate(stepProvider);
+    ref.invalidate(waterProvider);
+    ref.invalidate(calorieProvider);
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -276,3 +276,6 @@ class _GoalTile extends StatelessWidget {
     );
   }
 }
+
+
+

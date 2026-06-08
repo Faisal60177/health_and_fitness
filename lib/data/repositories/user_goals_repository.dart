@@ -1,38 +1,32 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:isar/isar.dart';
+import 'package:health_and_fitness/objectbox.g.dart';
+import 'package:objectbox/objectbox.dart';
 import '../models/user_goals.dart';
-import '../services/isar_service.dart';
+import '../services/objectbox_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class UserGoalsRepository {
-  final _db = IsarService.db;
+  Box<UserGoals> get _box => ObjectBoxService.userGoals;
 
   String get _uid =>
       FirebaseAuth.instance.currentUser?.uid ?? 'anonymous';
 
   Future<UserGoals> getGoals() async {
-    final existing = await _db.userGoals
-        .filter()
-        .uidEqualTo(_uid)
-        .findFirst();
+    final existing = _box.query(
+      UserGoals_.uid.equals(_uid),
+    ).build().findFirst();
 
     if (existing != null) return existing;
 
-    // Create default goals for this user on first access
     final defaults = UserGoals()..uid = _uid;
-    await _db.writeTxn(() async {
-      await _db.userGoals.put(defaults);
-    });
+    _box.put(defaults);
     return defaults;
   }
 
   Future<void> saveGoals(UserGoals goals) async {
     goals.uid = _uid;
-    await _db.writeTxn(() async {
-      await _db.userGoals.put(goals);
-    });
+    _box.put(goals);
   }
 
-  // Update just the step goal — called from goal settings screen
   Future<void> updateDailyStepGoal(int newGoal) async {
     final goals = await getGoals();
     goals.dailyStepGoal = newGoal;
@@ -40,10 +34,12 @@ class UserGoalsRepository {
   }
 
   Stream<UserGoals?> watchGoals() {
-    return _db.userGoals
-        .filter()
-        .uidEqualTo(_uid)
-        .watch(fireImmediately: true)
-        .map((list) => list.isEmpty ? null : list.first);
+    return _box.query(UserGoals_.uid.equals(_uid))
+        .watch(triggerImmediately: true)
+        .map((q) => q.findFirst());
   }
 }
+
+
+
+

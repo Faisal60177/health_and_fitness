@@ -6,35 +6,87 @@ part of 'weight_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$latestWeightHash() => r'8659605bcda526e65ff035f3bc9d384e23d93a3b';
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
 
-/// See also [latestWeight].
-@ProviderFor(latestWeight)
-final latestWeightProvider = AutoDisposeFutureProvider<WeightLog?>.internal(
-  latestWeight,
-  name: r'latestWeightProvider',
-  debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$latestWeightHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+@ProviderFor(WeightNotifier)
+final weightProvider = WeightNotifierProvider._();
 
-typedef LatestWeightRef = AutoDisposeFutureProviderRef<WeightLog?>;
+final class WeightNotifierProvider
+    extends $AsyncNotifierProvider<WeightNotifier, List<WeightLog>> {
+  WeightNotifierProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'weightProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$weightNotifierHash();
+
+  @$internal
+  @override
+  WeightNotifier create() => WeightNotifier();
+}
+
 String _$weightNotifierHash() => r'979c7c35f5e9aae4503184913bb16fe5bcd6183e';
 
-/// See also [WeightNotifier].
-@ProviderFor(WeightNotifier)
-final weightNotifierProvider =
-    AutoDisposeAsyncNotifierProvider<WeightNotifier, List<WeightLog>>.internal(
-  WeightNotifier.new,
-  name: r'weightNotifierProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$weightNotifierHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+abstract class _$WeightNotifier extends $AsyncNotifier<List<WeightLog>> {
+  FutureOr<List<WeightLog>> build();
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    final ref = this.ref as $Ref<AsyncValue<List<WeightLog>>, List<WeightLog>>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<List<WeightLog>>, List<WeightLog>>,
+              AsyncValue<List<WeightLog>>,
+              Object?,
+              Object?
+            >;
+    element.handleCreate(ref, build);
+  }
+}
 
-typedef _$WeightNotifier = AutoDisposeAsyncNotifier<List<WeightLog>>;
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member
+@ProviderFor(latestWeight)
+final latestWeightProvider = LatestWeightProvider._();
+
+final class LatestWeightProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<WeightLog?>,
+          WeightLog?,
+          FutureOr<WeightLog?>
+        >
+    with $FutureModifier<WeightLog?>, $FutureProvider<WeightLog?> {
+  LatestWeightProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'latestWeightProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$latestWeightHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<WeightLog?> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<WeightLog?> create(Ref ref) {
+    return latestWeight(ref);
+  }
+}
+
+String _$latestWeightHash() => r'2e32e514845af3109e33c3ae09c810e590aff3cc';

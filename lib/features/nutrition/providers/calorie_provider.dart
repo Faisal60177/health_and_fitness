@@ -75,3 +75,6 @@ class CalorieNotifier extends _$CalorieNotifier {
     await future;
   }
 }
+
+
+

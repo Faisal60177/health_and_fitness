@@ -20,7 +20,6 @@ import '../../features/meditation/screens/meditation_screen.dart';
 import '../../features/notifications/screens/notification_settings_screen.dart';
 import 'package:health_and_fitness/features/meals/screens/meal_plans_screen.dart';
 import '../../features/ai_coach/screens/ai_coach_screen.dart';
-import '../../features/wearable/screens/health_connect_screen.dart';
 import '../../features/social/screens/leaderboard_screen.dart';
 import '../../features/premium/screens/premium_screen.dart';
 import 'package:health_and_fitness/data/repositories/user_profile_repository.dart';
@@ -29,8 +28,6 @@ import '../../features/steps/screens/step_goal_screen.dart';
 import 'package:health_and_fitness/features/settings/screens/goals_settings_screen.dart';
 import 'package:health_and_fitness/features/sleep/screens/sleep_screen.dart';
 import '../../features/exercises/screens/exercise_db_screen.dart';
-
-
 
 part 'app_router.g.dart';
 
@@ -86,7 +83,7 @@ GoRouter createRouter(Ref ref) {
     // Return null to allow the navigation as-is
     redirect: (context, state) async {
       final authState = ref.read(authStateProvider);
-      final isLoggedIn = authState.valueOrNull != null;
+      final isLoggedIn = authState.unwrapPrevious().value != null;
 
       final currentPath = state.uri.toString();
       final isOnAuthPage = currentPath == AppRoutes.login ||
@@ -193,10 +190,8 @@ GoRouter createRouter(Ref ref) {
             path: AppRoutes.meals,
             builder: (context, state) => const MealPlansScreen(),
           ),
-          GoRoute(path: AppRoutes.aiCoach,
-              builder: (c, s) => const AiCoachScreen()),
-          GoRoute(path: AppRoutes.healthConnect,
-              builder: (c, s) => const HealthConnectScreen()),
+          //GoRoute(path: AppRoutes.aiCoach,
+             // builder: (c, s) => const AiCoachScreen()),
           GoRoute(path: AppRoutes.leaderboard,
               builder: (c, s) => const LeaderboardScreen()),
           GoRoute(path: AppRoutes.premium,
@@ -231,6 +226,13 @@ GoRouter createRouter(Ref ref) {
 
 // Provider that exposes the router — used in app.dart
 @riverpod
-GoRouter appRouter(AppRouterRef ref) {
+GoRouter appRouter(Ref ref) {
   return createRouter(ref);
 }
+
+
+
+
+
+
+

@@ -24,6 +24,11 @@ class WorkoutPlanNotifier extends _$WorkoutPlanNotifier {
 
 // Active plan provider — what the user is currently following
 @riverpod
-Future<WorkoutPlan?> activePlan(ActivePlanRef ref) async {
+Future<WorkoutPlan?> activePlan(Ref ref) async {
   return WorkoutPlanRepository().getActivePlan();
 }
+
+
+
+
+

@@ -8,7 +8,7 @@ class SyncCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final sync = ref.watch(syncNotifierProvider);
+    final sync = ref.watch(syncProvider);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
@@ -56,7 +56,7 @@ class SyncCard extends ConsumerWidget {
               GestureDetector(
                 onTap: sync.isSyncing
                     ? null
-                    : () => ref.read(syncNotifierProvider.notifier).syncNow(),
+                    : () => ref.read(syncProvider.notifier).syncNow(),
                 child: Container(
                   padding: const EdgeInsets.symmetric(
                       horizontal: 14, vertical: 8),
@@ -152,3 +152,7 @@ class SyncCard extends ConsumerWidget {
     return '${diff.inDays}d ago';
   }
 }
+
+
+
+

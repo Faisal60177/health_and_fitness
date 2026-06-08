@@ -26,7 +26,7 @@ class _ExerciseDatabaseScreenState
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(exerciseNotifierProvider);
+    final state = ref.watch(exerciseProvider);
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -55,7 +55,7 @@ class _ExerciseDatabaseScreenState
                   onPressed: () {
                     _searchController.clear();
                     ref
-                        .read(exerciseNotifierProvider.notifier)
+                        .read(exerciseProvider.notifier)
                         .clearSearch();
                   },
                 )
@@ -71,7 +71,7 @@ class _ExerciseDatabaseScreenState
               ),
               onChanged: (q) {
                 setState(() {}); // update clear button visibility
-                ref.read(exerciseNotifierProvider.notifier).search(q);
+                ref.read(exerciseProvider.notifier).search(q);
               },
             ),
           ),
@@ -87,7 +87,7 @@ class _ExerciseDatabaseScreenState
                   label: 'All',
                   isSelected: state.selectedCategory == null,
                   onTap: () => ref
-                      .read(exerciseNotifierProvider.notifier)
+                      .read(exerciseProvider.notifier)
                       .loadExercises(),
                 ),
                 ...LocalExerciseService.categories.map(
@@ -95,7 +95,7 @@ class _ExerciseDatabaseScreenState
                     label: cat,
                     isSelected: state.selectedCategory == cat,
                     onTap: () => ref
-                        .read(exerciseNotifierProvider.notifier)
+                        .read(exerciseProvider.notifier)
                         .loadExercises(category: cat),
                   ),
                 ),
@@ -357,3 +357,6 @@ class _EmptyState extends StatelessWidget {
     );
   }
 }
+
+
+

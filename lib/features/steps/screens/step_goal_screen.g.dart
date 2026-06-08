@@ -6,19 +6,43 @@ part of 'step_goal_screen.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$userGoalsHash() => r'0feebca330dfeebf4bf1583a3633757dc38eceb8';
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
 
-/// See also [userGoals].
 @ProviderFor(userGoals)
-final userGoalsProvider = AutoDisposeFutureProvider<UserGoals>.internal(
-  userGoals,
-  name: r'userGoalsProvider',
-  debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$userGoalsHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+final userGoalsProvider = UserGoalsProvider._();
 
-typedef UserGoalsRef = AutoDisposeFutureProviderRef<UserGoals>;
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member
+final class UserGoalsProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<UserGoals>,
+          UserGoals,
+          FutureOr<UserGoals>
+        >
+    with $FutureModifier<UserGoals>, $FutureProvider<UserGoals> {
+  UserGoalsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'userGoalsProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$userGoalsHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<UserGoals> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<UserGoals> create(Ref ref) {
+    return userGoals(ref);
+  }
+}
+
+String _$userGoalsHash() => r'245f92a47ff98f19d2001bda29f6fe11159f4be0';

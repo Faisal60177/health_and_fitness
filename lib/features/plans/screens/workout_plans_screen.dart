@@ -10,7 +10,7 @@ class WorkoutPlansScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final plansAsync   = ref.watch(workoutPlanNotifierProvider);
+    final plansAsync   = ref.watch(workoutPlanProvider);
     final activePlanAsync = ref.watch(activePlanProvider);
 
     return Scaffold(
@@ -254,3 +254,7 @@ class _PlanStat extends StatelessWidget {
     );
   }
 }
+
+
+
+

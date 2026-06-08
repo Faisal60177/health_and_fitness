@@ -1,23 +1,22 @@
-import 'package:isar/isar.dart';
+import 'package:objectbox/objectbox.dart';
 
-part 'user_goals.g.dart';
 
-@collection
+@Entity()
 class UserGoals {
-  Id id = Isar.autoIncrement;
+  int id = 0;
 
-  @Index(unique: true)
+  @Unique()
   String uid = '';
 
-  int dailyStepGoal       = 10000;    // default 10,000 steps/day
-  int weeklyRunningKm     = 4;        // weekly running distance target
-  int weeklyRunDays       = 3;        // how many days/week to run
-// Other goals
-  int dailyWaterMl        = 2500;     // ml per day
-  int dailyCalorieTarget  = 2000;     // kcal per day
-  double targetWeightKg   = 70.0;     // target body weight
-
-  // Stride length for distance calculation
-  // Roughly height(cm) × 0.413 for walking
-  double strideLengthM    = 0.75;
+  int    dailyStepGoal      = 10000;
+  int    weeklyRunningKm    = 4;
+  int    weeklyRunDays      = 3;
+  int    dailyWaterMl       = 2500;
+  int    dailyCalorieTarget = 2000;
+  double targetWeightKg     = 70.0;
+  double strideLengthM      = 0.75;
 }
+
+
+
+

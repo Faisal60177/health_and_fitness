@@ -21,7 +21,6 @@ class AppTheme {
         onSurface:   isDark ? AppColors.textPrimary : AppColors.textPrimaryLight,
         error:       AppColors.danger,
         onError:     Colors.white,
-        // Required fields
         secondary:   AppColors.primary,
         onSecondary: Colors.black,
       ),
@@ -43,9 +42,8 @@ class AppTheme {
   }
 }
 
-// Add light mode colors to AppColors
 class AppColors {
-  // Dark mode (existing)
+  // Dark mode
   static const primary        = Color(0xFF00C896);
   static const background     = Color(0xFF0F1117);
   static const surfaceCard    = Color(0xFF1A1D27);
@@ -57,7 +55,13 @@ class AppColors {
   static const warning        = Color(0xFFFF9800);
   static const danger         = Color(0xFFE53935);
 
-  // Light mode (new)
+  // Feature Colors (Universal)
+  static const calorieOrange   = Color(0xFFFF7043);
+  static const waterBlue       = Color(0xFF42A5F5);
+  static const workoutPurple   = Color(0xFFA78BFA);
+  static const sleepDeepPurple = Color(0xFF7C3AED);
+
+  // Light mode
   static const backgroundLight    = Color(0xFFF5F7FA);
   static const surfaceCardLight   = Color(0xFFFFFFFF);
   static const surfaceMutedLight  = Color(0xFFEEF0F5);

@@ -2,7 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:workmanager/workmanager.dart';
 import '../../firebase_options.dart';
-import '../services/isar_service.dart';
+import '../services/objectbox_service.dart';
 import '../services/sync_service.dart';
 
 // Task name — must match exactly in both registration and callback
@@ -21,7 +21,7 @@ void backgroundSyncCallback() {
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
-      await IsarService.initialize();
+      await ObjectBoxService.initialize();
 
       // Only sync if user is still signed in
       final user = FirebaseAuth.instance.currentUser;
@@ -79,3 +79,6 @@ class BackgroundSyncService {
     return target.difference(now);
   }
 }
+
+
+

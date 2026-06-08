@@ -24,7 +24,7 @@ class LeaderboardEntry {
 }
 
 @riverpod
-Stream<List<LeaderboardEntry>> leaderboard(LeaderboardRef ref) {
+Stream<List<LeaderboardEntry>> leaderboard(Ref ref) {
   // Real-time stream — leaderboard updates live as others sync
   // Firestore free tier: 50k reads/day — plenty for a leaderboard
   return FirebaseFirestore.instance
@@ -260,3 +260,8 @@ class _LeaderboardRow extends StatelessWidget {
     return '$steps';
   }
 }
+
+
+
+
+

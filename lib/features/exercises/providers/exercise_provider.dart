@@ -75,3 +75,6 @@ class ExerciseNotifier extends _$ExerciseNotifier {
     loadExercises(category: state.selectedCategory);
   }
 }
+
+
+

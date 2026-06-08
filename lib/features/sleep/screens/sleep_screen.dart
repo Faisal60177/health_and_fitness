@@ -10,7 +10,7 @@ class SleepScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final sleepAsync = ref.watch(sleepNotifierProvider);
+    final sleepAsync = ref.watch(sleepProvider);
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -184,7 +184,7 @@ class SleepScreen extends ConsumerWidget {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    ref.read(sleepNotifierProvider.notifier).logSleep(
+                    ref.read(sleepProvider.notifier).logSleep(
                       bedTime: bedTime,
                       wakeTime: wakeTime,
                       quality: quality,
@@ -418,7 +418,7 @@ class _SleepLogCard extends StatelessWidget {
       key: Key(log.id.toString()),
       direction: DismissDirection.endToStart,
       onDismissed: (_) =>
-          ref.read(sleepNotifierProvider.notifier).deleteLog(log.id),
+          ref.read(sleepProvider.notifier).deleteLog(log.id),
       background: Container(
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 16),
@@ -480,3 +480,7 @@ class _SleepLogCard extends StatelessWidget {
     );
   }
 }
+
+
+
+

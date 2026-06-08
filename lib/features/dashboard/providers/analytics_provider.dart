@@ -128,7 +128,7 @@ class AnalyticsNotifier extends _$AnalyticsNotifier {
 // Provides the heatmap data — 84 days (12 weeks) grid
 // Each cell = activity intensity (0–4) based on step count
 @riverpod
-Future<Map<DateTime, int>> activityHeatmap(ActivityHeatmapRef ref) async {
+Future<Map<DateTime, int>> activityHeatmap(Ref ref) async {
   final stepLogs = await StepRepository().getRecentDays(365);
   final map = <DateTime, int>{};
 
@@ -144,3 +144,8 @@ Future<Map<DateTime, int>> activityHeatmap(ActivityHeatmapRef ref) async {
   }
   return map;
 }
+
+
+
+
+

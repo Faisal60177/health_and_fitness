@@ -1,4 +1,4 @@
-import 'package:riverpod_annotation/riverpod_annotation.dart';
+/* import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../data/services/ai_coach_service.dart';
 import 'package:flutter/foundation.dart';
 
@@ -157,3 +157,8 @@ class AiCoachNotifier extends _$AiCoachNotifier {
     );
   }
 }
+
+ */
+
+
+

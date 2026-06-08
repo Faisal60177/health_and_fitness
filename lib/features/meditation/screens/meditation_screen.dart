@@ -378,3 +378,6 @@ class _RingDotPainter extends CustomPainter {
   @override
   bool shouldRepaint(_RingDotPainter old) => old.color != color;
 }
+
+
+

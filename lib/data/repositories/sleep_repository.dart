@@ -1,62 +1,55 @@
-import 'package:isar/isar.dart';
+import 'package:health_and_fitness/objectbox.g.dart';
+import 'package:objectbox/objectbox.dart';
 import '../models/sleep_log.dart';
-import '../services/isar_service.dart';
+import '../services/objectbox_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class SleepRepository {
-  final _db = IsarService.db;
+  Box<SleepLog> get _box => ObjectBoxService.sleepLogs;
 
-  // Single helper — gets current uid once, used by all methods
   String get _uid =>
       FirebaseAuth.instance.currentUser?.uid ?? 'anonymous';
 
   Future<void> logSleep(SleepLog log) async {
-    log.uid = _uid;                      // ← stamp uid
-    await _db.writeTxn(() async {
-      await _db.sleepLogs.put(log);
-    });
+    log.uid = _uid;
+    _box.put(log);
   }
 
   Future<void> deleteLog(int id) async {
-    await _db.writeTxn(() async {
-      await _db.sleepLogs.delete(id);
-    });
+    _box.remove(id);
   }
 
-  // Last 7 nights for the weekly chart
   Future<List<SleepLog>> getRecentNights(int nights) async {
-    final from = DateTime.now().subtract(Duration(days: nights));
-    return _db.sleepLogs
-        .filter()
-        .uidEqualTo(_uid)          // ← filter by uid
-        .dateGreaterThan(from)
-        .sortByDateDesc()
-        .findAll();
+    final from = DateTime.now()
+        .subtract(Duration(days: nights))
+        .millisecondsSinceEpoch;
+    final query = _box.query(
+      SleepLog_.uid.equals(_uid)
+          .and(SleepLog_.date.greaterThan(from)),
+    )..order(SleepLog_.date, flags: Order.descending);
+    return query.build().find();
   }
 
-  // Full history for analytics
   Future<List<SleepLog>> getAllLogs() async {
-    return _db.sleepLogs
-        .filter()
-        .uidEqualTo(_uid)               // ← add uid filter
-        .sortByDateDesc()
-        .findAll();
+    final query = _box.query(SleepLog_.uid.equals(_uid))
+      ..order(SleepLog_.date, flags: Order.descending);
+    return query.build().find();
   }
 
-  // Average sleep duration over last N nights
   Future<double> getAverageDuration(int nights) async {
     final logs = await getRecentNights(nights);
     if (logs.isEmpty) return 0;
-    final total = logs.fold(0.0, (s, l) => s + l.durationHours);
-    return total / logs.length;
+    return logs.fold(0.0, (s, l) => s + l.durationHours) / logs.length;
   }
 
   Stream<List<SleepLog>> watchRecent() {
-    return _db.sleepLogs
-        .filter()
-        .uidEqualTo(_uid)               // ← add uid filter
-        .sortByDateDesc()
-        .limit(30)
-        .watch(fireImmediately: true);
+    final query = _box.query(SleepLog_.uid.equals(_uid))
+      ..order(SleepLog_.date, flags: Order.descending);
+    return query.watch(triggerImmediately: true)
+        .map((q) => q.find().take(30).toList());
   }
 }
+
+
+
+

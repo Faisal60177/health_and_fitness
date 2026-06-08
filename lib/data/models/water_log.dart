@@ -1,19 +1,22 @@
-import 'package:isar/isar.dart';
+import 'package:objectbox/objectbox.dart';
 
-part 'water_log.g.dart';
 
-@collection
+@Entity()
 class WaterLog {
-  Id id = Isar.autoIncrement;
+  int id = 0;
 
   @Index()
   String uid = '';
 
+  @Property(type: PropertyType.date)
   late DateTime date;
-  late int amountML;  // millilitres per drink (e.g., 250ml)
-  late DateTime time; // exact time of this drink
+  late int      amountML;
+  @Property(type: PropertyType.date)
+  late DateTime time;
 
-// Convenience getter: converts ml to glasses (1 glass = 250ml)
   double get glasses => amountML / 250;
-
 }
+
+
+
+

@@ -6,36 +6,98 @@ part of 'leaderboard_screen.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$leaderboardHash() => r'6ef55d72ca00d0e733753e77604f23cba583fd1f';
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
 
-/// See also [leaderboard].
 @ProviderFor(leaderboard)
-final leaderboardProvider =
-    AutoDisposeStreamProvider<List<LeaderboardEntry>>.internal(
-  leaderboard,
-  name: r'leaderboardProvider',
-  debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$leaderboardHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+final leaderboardProvider = LeaderboardProvider._();
 
-typedef LeaderboardRef = AutoDisposeStreamProviderRef<List<LeaderboardEntry>>;
+final class LeaderboardProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<LeaderboardEntry>>,
+          List<LeaderboardEntry>,
+          Stream<List<LeaderboardEntry>>
+        >
+    with
+        $FutureModifier<List<LeaderboardEntry>>,
+        $StreamProvider<List<LeaderboardEntry>> {
+  LeaderboardProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'leaderboardProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$leaderboardHash();
+
+  @$internal
+  @override
+  $StreamProviderElement<List<LeaderboardEntry>> $createElement(
+    $ProviderPointer pointer,
+  ) => $StreamProviderElement(pointer);
+
+  @override
+  Stream<List<LeaderboardEntry>> create(Ref ref) {
+    return leaderboard(ref);
+  }
+}
+
+String _$leaderboardHash() => r'69f0aeadcd559362096189c5712d33279e63b2e4';
+
+@ProviderFor(LeaderboardSync)
+final leaderboardSyncProvider = LeaderboardSyncProvider._();
+
+final class LeaderboardSyncProvider
+    extends $NotifierProvider<LeaderboardSync, bool> {
+  LeaderboardSyncProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'leaderboardSyncProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$leaderboardSyncHash();
+
+  @$internal
+  @override
+  LeaderboardSync create() => LeaderboardSync();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(bool value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<bool>(value),
+    );
+  }
+}
+
 String _$leaderboardSyncHash() => r'601fc8cd51d00319663522774000942ea6f49410';
 
-/// See also [LeaderboardSync].
-@ProviderFor(LeaderboardSync)
-final leaderboardSyncProvider =
-    AutoDisposeNotifierProvider<LeaderboardSync, bool>.internal(
-  LeaderboardSync.new,
-  name: r'leaderboardSyncProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$leaderboardSyncHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
-
-typedef _$LeaderboardSync = AutoDisposeNotifier<bool>;
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member
+abstract class _$LeaderboardSync extends $Notifier<bool> {
+  bool build();
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    final ref = this.ref as $Ref<bool, bool>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<bool, bool>,
+              bool,
+              Object?,
+              Object?
+            >;
+    element.handleCreate(ref, build);
+  }
+}

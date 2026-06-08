@@ -6,7 +6,7 @@ part 'workout_provider.g.dart';
 
 // Provides the repository as a singleton
 @riverpod
-WorkoutRepository workoutRepository(WorkoutRepositoryRef ref) {
+WorkoutRepository workoutRepository(Ref ref) {
   return WorkoutRepository();
 }
 
@@ -54,7 +54,7 @@ class ActiveWorkout extends _$ActiveWorkout {
   // Add an exercise to the current session
   void addExercise(String name, String muscleGroup) {
     if (state == null) return;
-    final exercise = WorkoutExercise()
+    final exercise = WorkoutExercise(name: '', muscleGroup: '')
       ..name = name
       ..muscleGroup = muscleGroup
       ..sets = [];
@@ -84,3 +84,9 @@ class ActiveWorkout extends _$ActiveWorkout {
 
   void clear() => state = null;
 }
+
+
+
+
+
+

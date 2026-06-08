@@ -58,3 +58,6 @@ class OnboardingNotifier extends _$OnboardingNotifier {
   void setLevel(String level) =>
       state = state.copyWith(fitnessLevel: level);
 }
+
+
+

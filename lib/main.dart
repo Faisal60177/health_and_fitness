@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'app.dart';
-import 'data/services/isar_service.dart';
+import 'data/services/objectbox_service.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'data/services/notification_service.dart';
@@ -32,8 +32,8 @@ void main() async{
   // any async work happens before runApp()
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Open the Isar database before the UI launches
-  await IsarService.initialize();
+  // Open the ObjectBox  database before the UI launches
+  await ObjectBoxService.initialize();
   await Firebase.initializeApp(             // NEW
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -56,3 +56,6 @@ void main() async{
     ),
   );
 }
+
+
+
