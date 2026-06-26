@@ -70,8 +70,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final errorMsg = authState.hasError
         ? _cleanError(authState.error!)
         : null;
+
+    /* ── COMMENTED OUT FOR LATER ─────────────────────────────────
     final shouldHighlightGoogle = errorMsg != null &&
         errorMsg.toLowerCase().contains('google');
+    ───────────────────────────────────────────────────────────── */
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -109,10 +112,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 if (errorMsg != null) ...[
                   _ErrorBanner(
                     message:         errorMsg,
-                    highlightGoogle: shouldHighlightGoogle,
-                    onGoogleTap:     shouldHighlightGoogle
-                        ? _handleGoogleSignIn
-                        : null,
+                    highlightGoogle: false, // Set to false while Google UI is hidden
+                    onGoogleTap:     null,  // Set to null while Google UI is hidden
                   ),
                   const SizedBox(height: 20),
                 ],
@@ -181,6 +182,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                 ),
 
+                /* ── COMMENTED OUT FOR LATER ─────────────────────────────────
                 const SizedBox(height: 16),
 
                 // ── Divider ───────────────────────────────────
@@ -223,6 +225,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     ),
                   ),
                 ),
+                ───────────────────────────────────────────────────────────── */
 
                 const SizedBox(height: 32),
 
@@ -322,6 +325,3 @@ class _ErrorBanner extends StatelessWidget {
     );
   }
 }
-
-
-

@@ -19,6 +19,7 @@ class FoodRepository {
     _box.remove(id);
   }
 
+  // Single day — used by dashboard today summary
   Future<List<FoodLog>> getLogsForDate(DateTime date) async {
     final start = DateTime(date.year, date.month, date.day);
     final end   = start.add(const Duration(days: 1));
@@ -31,6 +32,19 @@ class FoodRepository {
     ).build().find();
   }
 
+  // Date range — used by analytics/charts for 7D or 30D view
+  Future<List<FoodLog>> getLogsForRange(
+      DateTime from, DateTime to) async {
+    return _box.query(
+      FoodLog_.uid.equals(_uid)
+          .and(FoodLog_.date.between(
+        from.millisecondsSinceEpoch,
+        to.millisecondsSinceEpoch,
+      )),
+    ).build().find();
+  }
+
+  // Summary for today — total calories + macros
   Future<Map<String, double>> getTodaySummary() async {
     final logs = await getLogsForDate(DateTime.now());
     return {
@@ -58,7 +72,3 @@ class FoodRepository {
 extension DateTimeExt on DateTime {
   DateTime get dayStart => DateTime(year, month, day);
 }
-
-
-
-
