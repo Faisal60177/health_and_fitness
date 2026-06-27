@@ -6,11 +6,9 @@ import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/router/app_router.dart';
-import '../../../data/repositories/auth_repository.dart';
 import '../../../data/repositories/user_profile_repository.dart';
 import 'package:health_and_fitness/features/sync/widgets/sync_card.dart';
-import 'package:health_and_fitness/features/sync/providers/sync_provider.dart';
-
+import 'package:health_and_fitness/features/auth/providers/auth_provider.dart';
 import '../../../data/repositories/weight_repository.dart';
 
 part 'profile_screen.g.dart';
@@ -387,12 +385,21 @@ class _ProfileBody extends StatelessWidget {
 
           const SizedBox(height: 24),
 
+          _MenuItem(
+            icon:     Icons.lock_outline_rounded,
+            label:    'Security',
+            subtitle: 'Manage password and sign-in methods',
+            onTap:    () => _showSecuritySheet(context),
+          ),
+
+          const SizedBox(height: 24),
+
           // ── Sign out ────────────────────────────────────────
           SizedBox(
             width: double.infinity,
             child: OutlinedButton.icon(
               onPressed: () async {
-                await AuthRepository().logout();
+                await ref.read(authNotifierProvider.notifier).logout();
                 if (context.mounted) context.go(AppRoutes.login);
               },
               icon:  const Icon(Icons.logout_rounded, size: 18),
@@ -510,6 +517,274 @@ class _ProfileBody extends StatelessWidget {
       ),
     );
   }
+
+  void _showSecuritySheet(BuildContext context) {
+    final authState = ref.read(authNotifierProvider);
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.surfaceCard,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (ctx) => Padding(
+        padding: EdgeInsets.fromLTRB(
+            24, 24, 24, MediaQuery.of(ctx).viewInsets.bottom + 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Security',
+                style: Theme.of(ctx).textTheme.headlineMedium),
+            const SizedBox(height: 6),
+            Text(
+              'Manage how you sign in to your account.',
+              style: Theme.of(ctx).textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 20),
+
+            // ── Provider status ─────────────────────────────
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: AppColors.surfaceMuted,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                children: [
+                  // Google status
+                  Row(
+                    children: [
+                      const Icon(Icons.g_mobiledata_rounded,
+                          color: Colors.blue, size: 22),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('Google',
+                                style: TextStyle(
+                                    color: AppColors.textPrimary,
+                                    fontWeight: FontWeight.w600)),
+                            Text(
+                              authState.hasGoogle
+                                  ? 'Connected'
+                                  : 'Not connected',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: authState.hasGoogle
+                                    ? AppColors.success
+                                    : AppColors.textHint,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Icon(
+                        authState.hasGoogle
+                            ? Icons.check_circle_rounded
+                            : Icons.radio_button_unchecked_rounded,
+                        color: authState.hasGoogle
+                            ? AppColors.success
+                            : AppColors.textHint,
+                        size: 20,
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 12),
+                  Divider(color: AppColors.surfaceMuted.withOpacity(0.5)),
+                  const SizedBox(height: 12),
+
+                  // Password status
+                  Row(
+                    children: [
+                      const Icon(Icons.lock_outline_rounded,
+                          color: AppColors.primary, size: 22),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('Password',
+                                style: TextStyle(
+                                    color: AppColors.textPrimary,
+                                    fontWeight: FontWeight.w600)),
+                            Text(
+                              authState.hasPassword
+                                  ? 'Password set'
+                                  : 'No password set',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: authState.hasPassword
+                                    ? AppColors.success
+                                    : AppColors.textHint,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Icon(
+                        authState.hasPassword
+                            ? Icons.check_circle_rounded
+                            : Icons.radio_button_unchecked_rounded,
+                        color: authState.hasPassword
+                            ? AppColors.success
+                            : AppColors.textHint,
+                        size: 20,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            // ── Add/Change password button ──────────────────
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  _showSetPasswordSheet(context, authState.hasPassword);
+                },
+                icon: Icon(
+                  authState.hasPassword
+                      ? Icons.lock_reset_rounded
+                      : Icons.lock_open_rounded,
+                  size: 18,
+                ),
+                label: Text(
+                  authState.hasPassword
+                      ? 'Change password'
+                      : 'Add password',
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.black,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showSetPasswordSheet(BuildContext context, bool isChanging) {
+    final passwordCtrl = TextEditingController();
+    final confirmCtrl  = TextEditingController();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.surfaceCard,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setState) => Padding(
+          padding: EdgeInsets.fromLTRB(
+              24, 24, 24, MediaQuery.of(ctx).viewInsets.bottom + 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                isChanging ? 'Change password' : 'Add password',
+                style: Theme.of(ctx).textTheme.headlineMedium,
+              ),
+              const SizedBox(height: 6),
+              Text(
+                isChanging
+                    ? 'Enter your new password below.'
+                    : 'Add a password so you can also sign in with email.',
+                style: Theme.of(ctx).textTheme.bodyMedium,
+              ),
+              const SizedBox(height: 20),
+
+              // Password field
+              _EditField(
+                ctrl:     passwordCtrl,
+                label:    'New password',
+              ),
+              const SizedBox(height: 12),
+
+              // Confirm field
+              _EditField(
+                ctrl:  confirmCtrl,
+                label: 'Confirm password',
+              ),
+              const SizedBox(height: 20),
+
+              // Save button
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    final password = passwordCtrl.text.trim();
+                    final confirm  = confirmCtrl.text.trim();
+
+                    if (password.length < 6) {
+                      ScaffoldMessenger.of(ctx).showSnackBar(
+                        const SnackBar(
+                          content: Text('Password must be at least 6 characters'),
+                          backgroundColor: AppColors.danger,
+                        ),
+                      );
+                      return;
+                    }
+
+                    if (password != confirm) {
+                      ScaffoldMessenger.of(ctx).showSnackBar(
+                        const SnackBar(
+                          content: Text('Passwords do not match'),
+                          backgroundColor: AppColors.danger,
+                        ),
+                      );
+                      return;
+                    }
+
+                    final success = await ref
+                        .read(authNotifierProvider.notifier)
+                        .addPasswordToAccount(password: password);
+
+                    if (ctx.mounted) {
+                      Navigator.pop(ctx);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(success
+                              ? isChanging
+                              ? 'Password changed successfully'
+                              : 'Password added successfully'
+                              : ref.read(authNotifierProvider).errorMessage),
+                          backgroundColor: success
+                              ? AppColors.success
+                              : AppColors.danger,
+                        ),
+                      );
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.black,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: Text(isChanging ? 'Change password' : 'Add password'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
 
   void _showLogWeight(BuildContext context) {
     final weightCtrl = TextEditingController();

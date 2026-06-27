@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -30,51 +29,35 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   Future<void> _handleLogin() async {
     if (!_formKey.currentState!.validate()) return;
-
-    await ref.read(authProvider.notifier).login(
+    final success = await ref.read(authNotifierProvider.notifier).login(
       _emailController.text.trim(),
       _passwordController.text,
     );
-
-    // ← ADD THIS after login
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
+    if (success && mounted) {
       await StepForegroundService.requestPermissionAndStart();
     }
   }
 
   Future<void> _handleGoogleSignIn() async {
-    await ref.read(authProvider.notifier).signInWithGoogle();
-
-    // ← ADD THIS after Google login
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
+    final success = await ref
+        .read(authNotifierProvider.notifier)
+        .signInWithGoogle();
+    if (success && mounted) {
       await StepForegroundService.requestPermissionAndStart();
     }
   }
 
-  // Extract a clean readable message from AsyncError
-  String _cleanError(Object error) {
-    final msg = error.toString();
-    // Remove "Exception: " prefix that Dart adds
-    return msg.replaceFirst('Exception: ', '');
-  }
-
   @override
   Widget build(BuildContext context) {
-    final authState = ref.watch(authProvider);
+    final authState = ref.watch(authNotifierProvider);
     final isLoading = authState.isLoading;
 
-    // Check if the error message suggests using Google
-    // so we can highlight the Google button
-    final errorMsg = authState.hasError
-        ? _cleanError(authState.error!)
+    final errorMsg = authState.errorMessage.isNotEmpty
+        ? authState.errorMessage
         : null;
 
-    /* ── COMMENTED OUT FOR LATER ─────────────────────────────────
     final shouldHighlightGoogle = errorMsg != null &&
         errorMsg.toLowerCase().contains('google');
-    ───────────────────────────────────────────────────────────── */
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -109,11 +92,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 const SizedBox(height: 40),
 
                 // ── Error banner ──────────────────────────────
-                if (errorMsg != null) ...[
+                if (errorMsg != null && errorMsg.isNotEmpty) ...[
                   _ErrorBanner(
                     message:         errorMsg,
-                    highlightGoogle: false, // Set to false while Google UI is hidden
-                    onGoogleTap:     null,  // Set to null while Google UI is hidden
+                    highlightGoogle: shouldHighlightGoogle,
+                    onGoogleTap: shouldHighlightGoogle
+                        ? _handleGoogleSignIn
+                        : null,
                   ),
                   const SizedBox(height: 20),
                 ],
@@ -182,7 +167,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                 ),
 
-                /* ── COMMENTED OUT FOR LATER ─────────────────────────────────
                 const SizedBox(height: 16),
 
                 // ── Divider ───────────────────────────────────
@@ -203,7 +187,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 const SizedBox(height: 16),
 
                 // ── Google button ─────────────────────────────
-                // Glows green when error tells user to use Google
                 SizedBox(
                   width: double.infinity,
                   height: 52,
@@ -213,7 +196,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     label: const Text('Continue with Google'),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppColors.textPrimary,
-                      // ✅ Highlight border green if error says "use Google"
                       side: BorderSide(
                         color: shouldHighlightGoogle
                             ? AppColors.primary
@@ -225,7 +207,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     ),
                   ),
                 ),
-                ───────────────────────────────────────────────────────────── */
 
                 const SizedBox(height: 32),
 
@@ -253,7 +234,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 }
 
-// ── Error banner ──────────────────────────────────────────────
+// ── Error banner ───────────────────────────────────────────────
 class _ErrorBanner extends StatelessWidget {
   final String message;
   final bool highlightGoogle;
@@ -290,7 +271,6 @@ class _ErrorBanner extends StatelessWidget {
               ),
             ],
           ),
-          // ✅ Show a quick Google tap button inside error if relevant
           if (highlightGoogle && onGoogleTap != null) ...[
             const SizedBox(height: 10),
             GestureDetector(

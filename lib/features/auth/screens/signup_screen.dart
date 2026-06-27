@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -35,29 +34,21 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
 
   Future<void> _handleSignup() async {
     if (!_formKey.currentState!.validate()) return;
-
-    await ref.read(authProvider.notifier).signUp(
+    final success = await ref.read(authNotifierProvider.notifier).signUp(
       _emailController.text.trim(),
       _passwordController.text,
       _nameController.text.trim(),
     );
-
-    // ← ADD THIS after signup
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
+    if (success && mounted) {
       await StepForegroundService.requestPermissionAndStart();
     }
   }
 
-  // ✅ FIX 2: Strip "Exception: " prefix from error messages
-  String _cleanError(Object error) {
-    return error.toString().replaceFirst('Exception: ', '');
-  }
-
   @override
   Widget build(BuildContext context) {
-    final authState = ref.watch(authProvider);
+    final authState = ref.watch(authNotifierProvider);
     final isLoading = authState.isLoading;
+    final errorMsg  = authState.errorMessage;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -90,7 +81,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                 const SizedBox(height: 40),
 
                 // ── Error banner ──────────────────────────────
-                if (authState.hasError) ...[
+                if (errorMsg.isNotEmpty) ...[
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(12),
@@ -108,8 +99,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(
-                            // ✅ FIX 2: Clean error message
-                            _cleanError(authState.error!),
+                            errorMsg,
                             style: const TextStyle(
                                 color: AppColors.danger, fontSize: 13),
                           ),
@@ -175,7 +165,6 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                   label:       'Confirm password',
                   hint:        'Repeat password',
                   controller:  _confirmPasswordController,
-                  // ✅ FIX 3: Added toggle for confirm password too
                   obscureText: !_showConfirmPassword,
                   suffixIcon: IconButton(
                     icon: Icon(
@@ -248,6 +237,3 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     );
   }
 }
-
-
-

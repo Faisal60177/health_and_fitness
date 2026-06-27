@@ -37,9 +37,9 @@ void main() async{
   await Firebase.initializeApp(             // NEW
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  await AuthRepository.initializeGoogleSignIn(
-    webClientId: '1099427515724-b1mj1hiv1g1ubipknvn4rqmhohcgl614.apps.googleusercontent.com',
-  );
+
+  await AuthRepository.initializeGoogleSignIn();
+
 
   await NotificationService.initialize();
   await StepForegroundService.initialize();
